@@ -6,9 +6,8 @@ from .models import User, TeamMembers
 
 
 # class UserAdmin(admin.ModelAdmin):
-#     UserAdmin.fieldsets += ('user_type',)
-
 UserAdmin.fieldsets += ('Custom fields set', {'fields': ('user_type',)}),
+UserAdmin.list_display += ('user_type',)
 
 
 admin.site.register(User, UserAdmin)

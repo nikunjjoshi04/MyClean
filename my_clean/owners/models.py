@@ -5,15 +5,21 @@ from django.contrib.auth.models import AbstractUser
 
 
 class User(AbstractUser):
+    AGENT = 'agent'
+    ADMIN = 'admin'
+    EVALUATOR = 'evaluator'
+    STL = 'stl'
+    TL = 'tl'
+    ACCOUNTENT = 'accountent'
     user_choices = [
-        ('AG', 'Agent'),
-        ('AD', 'Admin'),
-        ('EV', 'Evaluator'),
-        ('ST', 'STL'),
-        ('TL', 'TL'),
-        ('AC', 'Accountent'),
+        (AGENT, 'Agent'),
+        (ADMIN, 'Admin'),
+        (EVALUATOR, 'Evaluator'),
+        (STL, 'STL'),
+        (TL, 'TL'),
+        (ACCOUNTENT, 'Accountent'),
     ]
-    user_type = models.CharField(max_length=2, choices=user_choices)
+    user_type = models.CharField(max_length=20, choices=user_choices)
 
 
 class TeamMembers(models.Model):

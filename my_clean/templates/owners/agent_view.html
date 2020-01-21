@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home Page</title>
+</head>
+<body>
+    <h5>Hello Agent</h5>
+    {% if user.is_authenticated %}
+        <h2>{{ user.username }}</h2>
+        <h4><a href="{% url 'owners:logout' %}">Logout</a></h4>
+    {% endif %}
+
+    <form method="GET">
+        {{ form.search }} <button type="submit">Search</button>
+    </form>
+
+    {% for da in data %}
+    <p>{{ da.first_name }} - {{ da.mobile_no }}</p>
+    {% endfor %}
+
+</body>
+</html>

@@ -23,27 +23,40 @@ class DustLevelPrice(models.Model):
 
 
 class Order(models.Model):
+    IN_EVALUATION = 'in_evaluation'
+    IN_STL = 'in_stl'
+    IN_TL = 'in_tl'
+    IN_PAYMENT = 'in_payment'
+    ORDER_DONE = 'order_done'
     Process_Flags = [
-        ('OP', 'On Process'),
-        ('EP', 'In Evaluation Process'),
-        ('SO', 'In STL Observation'),
-        ('TO', 'In TL Observation'),
-        ('OC', 'On Cleaning'),
-        ('PP', 'In Payment Process'),
-        ('OD', 'Order Done'),
+        (IN_EVALUATION, 'In Evaluation Process'),
+        (IN_STL, 'In STL Observation'),
+        (IN_TL, 'In TL Observation'),
+        (IN_PAYMENT, 'In Payment Process'),
+        (ORDER_DONE, 'Order Done'),
     ]
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     service = models.ForeignKey(Services, on_delete=models.CASCADE)
-    process = models.CharField(max_length=2, choices=Process_Flags)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    process = models.CharField(max_length=30, choices=Process_Flags)
 
     def __str__(self):
         return self.process
 
 
 class OrderTask(models.Model):
+    OPEN = 'open'
+    IN_PROCESS = 'in_process'
+    FINISH = 'finish'
+    Process_Flags = [
+        (OPEN, 'Open'),
+        (IN_PROCESS, 'In Process'),
+        (FINISH, 'Finish'),
+    ]
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
-    task = models.ForeignKey(User, on_delete=models.CASCADE)
-    approve = models.BooleanField(default=False)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created')
+    assigned_to = models.ForeignKey(User, on_delete=models.CASCADE, related_name='assigned')
+    process = models.CharField(max_length=30, choices=Process_Flags)
 
     def __str__(self):
         return "{} - {}".format(self.order, self.approve)
