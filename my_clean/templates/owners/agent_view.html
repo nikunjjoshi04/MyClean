@@ -11,8 +11,13 @@
         <h4><a href="{% url 'owners:logout' %}">Logout</a></h4>
     {% endif %}
 
-    <form method="GET">
-        {{ form.search }} <button type="submit">Search</button>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        {{ address.as_p }}
+        {{ order.as_p }}
+        {{ order_task.as_p }}
+        <button type="submit">Book</button>
     </form>
 
     {% for da in data %}

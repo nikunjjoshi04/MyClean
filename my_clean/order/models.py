@@ -1,5 +1,6 @@
 from django.db import models
-from customer.models import Customer
+from django.utils import timezone
+from customer.models import Customer, Address
 from owners.models import User, TeamMembers
 
 
@@ -39,6 +40,8 @@ class Order(models.Model):
     service = models.ForeignKey(Services, on_delete=models.CASCADE)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     process = models.CharField(max_length=30, choices=Process_Flags)
+    address = models.ForeignKey(Address, on_delete=models.CASCADE, related_name='address_pk')
+    date = models.DateTimeField(default=timezone.now())
 
     def __str__(self):
         return self.process
@@ -57,12 +60,14 @@ class OrderTask(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created')
     assigned_to = models.ForeignKey(User, on_delete=models.CASCADE, related_name='assigned')
     process = models.CharField(max_length=30, choices=Process_Flags)
+    date = models.DateTimeField(default=timezone.now())
 
     def __str__(self):
-        return "{} - {}".format(self.order, self.approve)
+        return "{} - {}".format(self.date, self.process)
 
 
 class Evaluation(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_pk')
     order_task = models.ForeignKey(OrderTask, on_delete=models.CASCADE)
     dust_level = models.ForeignKey(DustLevelPrice, on_delete=models.CASCADE)
     no_of_team_members = models.IntegerField()
