@@ -1,19 +1,60 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Home Page</title>
-</head>
-<body>
-    <h5>Hello Evaluator</h5>
-    {% if user.is_authenticated %}
-        <h2>{{ user.username }}</h2>
-        <h4><a href="{% url 'owners:logout' %}">Logout</a></h4>
-    {% endif %}
-    <ul>
-        {% for task in tasks %}
-            <li>{{ task.created_by }} - {{ task.assigned_to }} - {{ task.process }} - {{ task.date }} - {{ task.order }} <a href="{% url 'owners:evaluation_view' task.order.id task.id%}">Evaluat</a> </li>
-        {% endfor %}
-    </ul>
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block content %}
+<!--  <ol class="breadcrumb mb-4">-->
+<!--    <li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>-->
+<!--    <li class="breadcrumb-item active">Sidenav Light</li>-->
+<!--  </ol>-->
+  <div class="breadcrumb mb-4">
+    <li class="breadcrumb-item pt-1 text-center"><h5 class="">Evaluator Tasks List</h5></li>
+  </div>
+  <table class="table mb-5">
+    <thead class="thead-light">
+      <tr>
+        <th>Order Process</th>
+        <th>Order Creator</th>
+        <th>Order Assigned To</th>
+        <th>Date</th>
+        <th>Task Process</th>
+        <th>Start Evalution</th>
+      </tr>
+    </thead>
+<!--    <tfoot>-->
+<!--      <tr>-->
+<!--        <th>Order Process</th>-->
+<!--        <th>Order Created By</th>-->
+<!--        <th>Order Assigned To</th>-->
+<!--        <th>Date</th>-->
+<!--        <th>Task Process</th>-->
+<!--      </tr>-->
+<!--    </tfoot>-->
+    <tbody>
+      {% for task in tasks %}
+        {% if task.process != "finish" %}
+        <tr>
+          <th>{{ task.order.get_process_display }}</th>
+          <th>{{ task.created_by }}</th>
+          <th>{{ task.assigned_to }}</th>
+          <th>{{ task.date }}</th>
+          <th>{{ task.process }}</th>
+          <th><a href="{% url 'owners:evaluation_view' task.order.id task.id%}">Evaluat</a></th>
+        </tr>
+
+        {% endif %}
+      {% endfor %}
+      {% for task in tasks %}
+        {% if task.process == "finish" %}
+          <tr>
+            <th>{{ task.order }}</th>
+            <th>{{ task.created_by }}</th>
+            <th>{{ task.assigned_to }}</th>
+            <th>{{ task.date }}</th>
+            <th>{{ task.process }}</th>
+            <th class="text-danger"><a>Evaluated</a></th>
+          </tr>
+        {% endif %}
+      {% endfor %}
+    </tbody>
+  </table>
+
+{% endblock %}

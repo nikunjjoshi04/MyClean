@@ -2,6 +2,7 @@ from builtins import super
 from django.shortcuts import render, redirect
 from django.views.generic.edit import FormView, CreateView
 from django.views.generic import TemplateView, DetailView, ListView
+from datetime import datetime
 from .forms import LoginForm, OrderForm, \
     OrderTaskForm, CustomerForm, \
     AddressForm, EvaluationForm
@@ -43,42 +44,41 @@ class AgentView(FormView):
     order_task_form = OrderTaskForm
     form_class = CustomerForm
     address_form = AddressForm
-    template_name = 'owners/agent_view1.html'
+    template_name = 'owners/agent_view.html'
     success_url = '/owners/agent_view'
+    o_id = 'MCL'
+    o = Order.objects.latest('date')
+    o_id = o_id + str(datetime.now().year) + '0' + str(o.id)
 
     def form_valid(self, form):
         customer_form = form.save()
         address_form = self.address_form(self.request.POST)
         main_order_form = self.order_form(self.request.POST)
-        obj_oder_task_form = self.order_task_form(self.request.POST)
+        obj_oder_task_form = self.order_task_form(self.request.POST, user=self.request.user)
         if address_form.is_valid():
             address = address_form.save(commit=False)
             address.customer = customer_form
             address.save()
-            print(address)
             if main_order_form.is_valid():
                 order = main_order_form.save(commit=False)
                 order.customer = customer_form
                 order.created_by = self.request.user
                 order.process = Order.IN_EVALUATION
                 order.address = address
+
                 order.save()
-                print(order)
                 if obj_oder_task_form.is_valid():
                     order_task = obj_oder_task_form.save(commit=False)
                     order_task.order = order
                     order_task.created_by = self.request.user
                     order_task.process = OrderTask.OPEN
                     order_task.save()
-                    print(order_task)
-        print(customer_form)
-        # print(self.request.user)
         return super(AgentView, self).form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super(AgentView, self).get_context_data()
         context['order'] = self.order_form
-        context['order_task'] = self.order_task_form
+        context['order_task'] = self.order_task_form(user=self.request.user)
         context['address'] = self.address_form
         return context
 
@@ -90,21 +90,57 @@ class EvaluatorView(ListView):
     def get_context_data(self, **kwargs):
         context = super(EvaluatorView, self).get_context_data()
         context['tasks'] = self.model.objects.filter(assigned_to=self.request.user)
-        print(context['tasks'])
         return context
 
 
 class EvaluationView(FormView):
     form_class = EvaluationForm
-    template_name = 'owners/evaluation_view.html'
+    template_name = 'owners/evaluation_view1.html'
     success_url = '/owners/evaluator_view'
+    order_task_form = OrderTaskForm
+    pk = 0
+    task_id = 0
+
+    def get(self, request, *args, **kwargs):
+        order = Order.objects.get(id=self.kwargs['pk'])
+        order.process = Order.IN_EVALUATION
+        order.save()
+        order_task = OrderTask.objects.get(id=self.kwargs['task_id'])
+        order_task.process = OrderTask.IN_PROCESS
+        order_task.save()
+        # self.order_task_form(user=self.request.user)
+        return super(EvaluationView, self).get(request, *args, **kwargs)
+
+    def process(self):
+        order = Order.objects.get(id=self.kwargs['pk'])
+        order.process = Order.EVALUATION_DONE
+        order.save()
+        order_task = OrderTask.objects.get(id=self.kwargs['task_id'])
+        order_task.process = OrderTask.FINISH
+        order_task.save()
 
     def form_valid(self, form):
-        evaluation_form = form.save(commit=False)
-        evaluation_form.order_id = self.kwargs['pk']
-        evaluation_form.order_task_id = self.kwargs['task_id']
-        evaluation_form.save()
+        form.save()
+        obj_order_task = self.order_task_form(self.request.POST, user=self.request.user)
+        if obj_order_task.is_valid():
+            order_task = obj_order_task.save(commit=False)
+            order_task.order_id = self.kwargs['pk']
+            order_task.created_by = self.request.user
+            order_task.process = OrderTask.OPEN
+            order_task.save()
+            self.process()
         return super(EvaluationView, self).form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super(EvaluationView, self).get_context_data()
+        context['order_task'] = self.order_task_form(user=self.request.user)
+        return context
+
+    def get_form_kwargs(self):
+        kwargs = super(EvaluationView, self).get_form_kwargs()
+        kwargs['pk'] = self.kwargs['pk']
+        kwargs['task_id'] = self.kwargs['task_id']
+        return kwargs
 
 
 class STLView(TemplateView):

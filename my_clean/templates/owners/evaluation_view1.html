@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="breadcrumb mb-4">
+        <li class="breadcrumb-item pt-1 text-center"><h5 class="">Evaluation Form</h5></li>
+    </div>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="small mb-1" for="{{ form.dust_level.id_for_label }}">{{ form.dust_level.label_tag }}</label>
+                    {{ form.dust_level }}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="small mb-1" for="{{ form.team_members.id_for_label }}">{{ form.team_members.label_tag }}</label>
+                    {{ form.team_members }}
+                </div>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="small mb-1" for="{{ form.expected_time.id_for_label }}">{{ form.expected_time.label_tag }}</label>
+                    {{ form.expected_time }}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="small mb-1" for="{{ order_task.assigned_to.id_for_label }}">{{ order_task.assigned_to.label_tag }}</label>
+                    {{ order_task.assigned_to }}
+                </div>
+            </div>
+        </div>
+        <button class="btn btn-primary btn-block" type="submit">Submit</button>
+    </form>
+
+{% endblock %}
