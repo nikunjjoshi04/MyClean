@@ -32,6 +32,8 @@
       {% for task in tasks %}
         {% if task.process != "finish" %}
         <tr>
+          <th>{{ task.id }}</th>
+          <th>{{ task.order.pk }}</th>
           <th>{{ task.order.get_process_display }}</th>
           <th>{{ task.created_by }}</th>
           <th>{{ task.assigned_to }}</th>
@@ -45,6 +47,9 @@
       {% for task in tasks %}
         {% if task.process == "finish" %}
           <tr>
+            <th>{{ task.id }}</th>
+            <th>{{ task.order.pk }}</th>
+            <th>{{ task.order.unique_id }}</th>
             <th>{{ task.order }}</th>
             <th>{{ task.created_by }}</th>
             <th>{{ task.assigned_to }}</th>

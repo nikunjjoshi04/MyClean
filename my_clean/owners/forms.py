@@ -1,5 +1,7 @@
 from django import forms
 from .models import User
+from django.utils import timezone
+from tempus_dominus.widgets import DateTimePicker
 from django.contrib.auth import authenticate, login
 from customer.models import Customer, Address, \
     City, State
@@ -25,30 +27,41 @@ class OrderForm(forms.ModelForm):
         widget=forms.Select(attrs={'class': 'form-control py-2'})
     )
 
+    description = forms.CharField(
+        widget=forms.Textarea(attrs={'class': 'form-control py-2', 'rows': '3'}),
+    )
+
     class Meta:
         model = Order
-        fields = ['service']
+        fields = ['service', 'description']
 
 
 class OrderTaskForm(forms.ModelForm):
-
     assigned_to = forms.ModelChoiceField(
         queryset=User.objects.all(),
         empty_label="SELECT",
         widget=forms.Select(attrs={'class': 'form-control py-2'})
     )
+    schedule_on = forms.DateTimeField(
+        widget=DateTimePicker(),
+        required=False
+    )
+    description = forms.CharField(
+        widget=forms.Textarea(attrs={'class': 'form-control py-2', 'rows': '3'}),
+        required=False
+    )
 
     class Meta:
         model = OrderTask
-        fields = ['assigned_to']
+        fields = ['assigned_to', 'schedule_on', 'schedule_end', 'message', 'description']
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
         super(OrderTaskForm, self).__init__(*args, **kwargs)
         if user.user_type == User.AGENT:
             self.fields['assigned_to'].queryset = User.objects.filter(user_type=User.EVALUATOR)
-        elif user.user_type == User.EVALUATOR:
-            self.fields['assigned_to'].queryset = User.objects.filter(user_type=User.STL)
+        else:
+            self.fields['assigned_to'].queryset = User.objects.all()
 
 
 class CustomerForm(forms.ModelForm):
@@ -76,6 +89,18 @@ class AddressForm(forms.ModelForm):
 
 
 class EvaluationForm(forms.ModelForm):
+    assigned_to = forms.ModelChoiceField(
+        queryset=User.objects.all(),
+        empty_label="SELECT",
+        widget=forms.Select(attrs={'class': 'form-control py-2'})
+    )
+    dust_level = forms.ModelChoiceField(
+        queryset=DustLevelPrice.objects.all(),
+        empty_label="SELECT",
+        widget=forms.Select(
+            attrs={'class': 'form-control py-2'}
+        )
+    )
     dust_level = forms.ModelChoiceField(
         queryset=DustLevelPrice.objects.all(),
         empty_label="SELECT",
@@ -95,9 +120,14 @@ class EvaluationForm(forms.ModelForm):
     )
 
     def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
         self.pk = kwargs.pop('pk', None)
         self.task_id = kwargs.pop('task_id', None)
         super(EvaluationForm, self).__init__(*args, **kwargs)
+        if self.user.user_type == User.EVALUATOR:
+            self.fields['assigned_to'].queryset = User.objects.filter(user_type=User.STL)
+        else:
+            self.fields['assigned_to'].queryset = User.objects.all()
 
     class Meta:
         model = Evaluation
@@ -112,4 +142,13 @@ class EvaluationForm(forms.ModelForm):
         instance.order_id = self.pk
         instance.order_task_id = self.task_id
         instance.estimated_price = estimated_price
+        assigned_to = self.cleaned_data['assigned_to']
+        print(assigned_to)
+        order_task = OrderTask.objects.create(
+            order_id=self.pk,
+            created_by=self.user,
+            assigned_to=assigned_to,
+            process=OrderTask.OPEN,
+            schedule_end=timezone.now()
+        )
         return super(EvaluationForm, self).save(commit=commit)

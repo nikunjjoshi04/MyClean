@@ -31,15 +31,17 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'owners.apps.OwnersConfig',
-    'order.apps.OrderConfig',
-    'customer.apps.CustomerConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'phonenumber_field',
+    'tempus_dominus',
+    'owners.apps.OwnersConfig',
+    'customer.apps.CustomerConfig',
+    'order.apps.OrderConfig',
 ]
 
 MIDDLEWARE = [
@@ -79,7 +81,7 @@ WSGI_APPLICATION = 'my_clean.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'myclean',
+        'NAME': 'MyClean',
         'HOST': 'localhost',
         'USER': 'quixom',
         'PASSWORD': 'root',
@@ -129,5 +131,6 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static')
 ]
 
-
 AUTH_USER_MODEL = 'owners.User'
+
+PHONENUMBER_DB_FORMAT = 'NATIONAL'

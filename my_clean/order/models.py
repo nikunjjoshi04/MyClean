@@ -46,6 +46,8 @@ class Order(models.Model):
     process = models.CharField(max_length=30, choices=Process_Flags)
     address = models.ForeignKey(Address, on_delete=models.CASCADE, related_name='address_pk')
     date = models.DateTimeField(default=timezone.now())
+    unique_id = models.CharField(max_length=30)
+    description = models.TextField(null=True)
 
     def __str__(self):
         return self.process
@@ -65,7 +67,10 @@ class OrderTask(models.Model):
     assigned_to = models.ForeignKey(User, on_delete=models.CASCADE, related_name='assigned')
     process = models.CharField(max_length=30, choices=Process_Flags)
     date = models.DateTimeField(default=timezone.now())
-    evaluation_date = models.DateTimeField(default=timezone.now())
+    schedule_on = models.DateTimeField(null=True)
+    schedule_end = models.DateTimeField(null=True)
+    message = models.CharField(max_length=200, null=True)
+    description = models.TextField(null=True)
 
     def __str__(self):
         return "{} - {}".format(self.date, self.process)
@@ -78,6 +83,7 @@ class Evaluation(models.Model):
     team_members = models.IntegerField()
     expected_time = models.FloatField()
     estimated_price = models.FloatField()
+    evaluation_date = models.DateTimeField(default=timezone.now())
 
     def __str__(self):
         return '{} - {}'.format(self.expected_time, self.estimated_price)
