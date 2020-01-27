@@ -1,8 +1,9 @@
 {% extends 'base.html' %}
 
 {% block content %}
+
   <div class="breadcrumb mb-4">
-      <li class="breadcrumb-item pt-1 text-center">Tasks List</li>
+    <li class="breadcrumb-item pt-1 text-center"><h5 class="">Team Leader Tasks List</h5></li>
   </div>
   <table class="table mb-5">
     <thead class="thead-light">
@@ -15,7 +16,7 @@
         <th>Created By</th>
         <th>Evaluation Time</th>
         <th>Process</th>
-        <th>Evaluation</th>
+        <th>Action</th>
       </tr>
     </thead>
     <tbody>
@@ -30,7 +31,7 @@
             <td>{{ task.created_by }}</td>
             <td>{{ task.schedule_on.date }}<br>{{ task.schedule_on.time }}</td>
             <td>{{ task.process }}</td>
-          <th><a href="{% url 'owners:evaluation_view' task.order.id task.id %}">Evaluat</a></th>
+          <th><a href="#">Start</a></th>
         </tr>
         {% endif %}
       {% endfor %}
@@ -62,7 +63,7 @@
             <td>{{ task.created_by }}</td>
             <td>{{ task.schedule_on.date }}<br>{{ task.schedule_on.time }}</td>
             <td>{{ task.process }}</td>
-            <td class="text-danger"><a href="#">Detail</a></td>
+            <td class="text-danger"><a><Detail></Detail></a></td>
           </tr>
         {% endif %}
       {% endfor %}

@@ -1,5 +1,7 @@
+from dataclasses import fields
+from datetime import datetime
 from django import forms
-from .models import User
+from .models import User, TeamMembers
 from django.utils import timezone
 from tempus_dominus.widgets import DateTimePicker
 from django.contrib.auth import authenticate, login
@@ -53,7 +55,7 @@ class OrderTaskForm(forms.ModelForm):
 
     class Meta:
         model = OrderTask
-        fields = ['assigned_to', 'schedule_on', 'schedule_end', 'message', 'description']
+        fields = ['assigned_to', 'schedule_on', 'description']
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
@@ -113,10 +115,8 @@ class EvaluationForm(forms.ModelForm):
             attrs={'class': 'form-control py-2'}
         )
     )
-    expected_time = forms.FloatField(
-        widget=forms.TextInput(
-            attrs={'class': 'form-control py-2'}
-        )
+    expected_time = forms.DateTimeField(
+        widget=DateTimePicker()
     )
 
     def __init__(self, *args, **kwargs):
@@ -131,7 +131,7 @@ class EvaluationForm(forms.ModelForm):
 
     class Meta:
         model = Evaluation
-        fields = ['dust_level', 'team_members', 'expected_time']
+        fields = ['dust_level', 'team_members', 'expected_time', 'assigned_to']
 
     def save(self, commit=True):
         instance = super(EvaluationForm, self).save(commit=False)
@@ -140,7 +140,6 @@ class EvaluationForm(forms.ModelForm):
         dust_level_price = DustLevelPrice.objects.get(dust_level=dust_level)
         estimated_price = dust_level_price.price * no_of_team_members
         instance.order_id = self.pk
-        instance.order_task_id = self.task_id
         instance.estimated_price = estimated_price
         assigned_to = self.cleaned_data['assigned_to']
         print(assigned_to)
@@ -148,7 +147,55 @@ class EvaluationForm(forms.ModelForm):
             order_id=self.pk,
             created_by=self.user,
             assigned_to=assigned_to,
-            process=OrderTask.OPEN,
-            schedule_end=timezone.now()
+            process=OrderTask.IN_PROCESS,
+            # schedule_end=timezone.now()
         )
+        instance.order_task = order_task
+        instance.save()
         return super(EvaluationForm, self).save(commit=commit)
+
+
+class STLReviewForm(forms.ModelForm):
+    team = forms.ModelMultipleChoiceField(
+        queryset=TeamMembers.objects.all(),
+        widget=forms.SelectMultiple(
+            attrs={'class': 'form-control py-2', 'rows': '3'}
+        )
+    )
+    assigned_to = forms.ModelChoiceField(
+        queryset=User.objects.all(),
+        empty_label="SELECT",
+        widget=forms.Select(
+            attrs={'class': 'form-control py-2'}
+        )
+    )
+    team_members = forms.FloatField(
+        widget=forms.TextInput(
+            attrs={'class': 'form-control py-2'}
+        )
+    )
+    expected_time = forms.FloatField(
+        widget=forms.TextInput(
+            attrs={'class': 'form-control py-2'}
+        )
+    )
+    estimated_price = forms.FloatField(
+        widget=forms.TextInput(
+            attrs={'class': 'form-control py-2'}
+        )
+    )
+
+    class Meta:
+        model = Evaluation
+        fields = ['team_members', 'expected_time', 'estimated_price']
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        self.task_id = kwargs.pop('task_id', None)
+        self.order_id = kwargs.pop('order_id', None)
+        # print(User, self.task_id, self.order_id)
+        super(STLReviewForm, self).__init__(*args, **kwargs)
+        if self.user.user_type == User.STL:
+            self.fields['assigned_to'].queryset = User.objects.filter(user_type=User.TL)
+        else:
+            self.fields['assigned_to'].queryset = User.objects.all()

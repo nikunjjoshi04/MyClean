@@ -24,19 +24,21 @@ class DustLevelPrice(models.Model):
 
 
 class Order(models.Model):
-    OPEN = 'open'
     IN_EVALUATION = 'in_evaluation'
     EVALUATION_DONE = 'evaluation_done'
     IN_STL = 'in_stl'
+    STL_DONE = 'stl_done'
     IN_TL = 'in_tl'
+    TL_DONE = 'tl_done'
     IN_PAYMENT = 'in_payment'
     ORDER_DONE = 'order_done'
     Process_Flags = [
-        (OPEN, 'Open Process'),
         (IN_EVALUATION, 'In Evaluation Process'),
         (EVALUATION_DONE, 'Evaluation Done'),
         (IN_STL, 'In STL Observation'),
+        (STL_DONE, 'STL Process Done'),
         (IN_TL, 'In TL Observation'),
+        (TL_DONE, 'TL Process Done'),
         (IN_PAYMENT, 'In Payment Process'),
         (ORDER_DONE, 'Order Done'),
     ]
@@ -50,15 +52,13 @@ class Order(models.Model):
     description = models.TextField(null=True)
 
     def __str__(self):
-        return self.process
+        return '{} - {}'.format(self.unique_id, self.process)
 
 
 class OrderTask(models.Model):
-    OPEN = 'open'
     IN_PROCESS = 'in_process'
     FINISH = 'finish'
     Process_Flags = [
-        (OPEN, 'Open'),
         (IN_PROCESS, 'In Process'),
         (FINISH, 'Finish'),
     ]
@@ -73,13 +73,14 @@ class OrderTask(models.Model):
     description = models.TextField(null=True)
 
     def __str__(self):
-        return "{} - {}".format(self.date, self.process)
+        return "{} - {}".format(self.order.unique_id, self.process)
 
 
 class Evaluation(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_pk')
     order_task = models.ForeignKey(OrderTask, on_delete=models.CASCADE)
     dust_level = models.ForeignKey(DustLevelPrice, on_delete=models.CASCADE)
+    assigned_to = models.ForeignKey(User, on_delete=models.CASCADE)
     team_members = models.IntegerField()
     expected_time = models.FloatField()
     estimated_price = models.FloatField()
@@ -90,6 +91,7 @@ class Evaluation(models.Model):
 
 
 class Team(models.Model):
+    date = models.DateTimeField(default=timezone.now())
     team_id = models.CharField(max_length=50)
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
     task = models.ForeignKey(OrderTask, on_delete=models.CASCADE)

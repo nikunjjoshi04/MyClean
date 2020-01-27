@@ -37,4 +37,4 @@ class Address(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.building
+        return '{} - {}'.format(self.street, self.building)

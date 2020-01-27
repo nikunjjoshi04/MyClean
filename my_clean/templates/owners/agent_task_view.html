@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="breadcrumb mb-4">
+      <li class="breadcrumb-item pt-1 text-center"><a href="{% url 'owners:agent_view' %}">Book New Order</a></li>
+      <li class="breadcrumb-item pt-1 text-center">Tasks List</li>
+  </div>
+  <table class="table mb-5">
+    <thead class="thead-light">
+      <tr>
+        <th>Task Id</th>
+        <th>Order Id</th>
+        <th>Order Date</th>
+        <th>Customer Info</th>
+        <th>Created By</th>
+        <th>Process</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+     {% for task in tasks %}
+      {% if task.process != "finish" %}
+        <tr>
+            <td>{{ task.id }}</td>
+            <td>{{ task.order.unique_id }}</td>
+            <td>{{ task.order.date.date }}<br>{{ task.order.date.time }}</td>
+            <td>{{ task.order.customer.first_name }} - {{ task.order.customer.last_name }}</td>
+            <td>{{ task.order.address.city }}</td>
+            <td>{{ task.process }}</td>
+            <td><a href="#">Details</a></td>
+        </tr>
+      {% endif %}
+     {% endfor %}
+    </tbody>
+  </table>
+  <table class="table mb-5">
+    <thead class="thead-light">
+      <tr>
+        <th>Task Id</th>
+        <th>Order Id</th>
+        <th>Order Date</th>
+        <th>Customer Info</th>
+        <th>Created By</th>
+        <th>Process</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+     {% for task in tasks %}
+      {% if task.process == "finish" %}
+        <tr>
+            <td>{{ task.id }}</td>
+            <td>{{ task.order.unique_id }}</td>
+            <td>{{ task.order.date.date }}<br>{{ task.order.date.time }}</td>
+            <td>{{ task.order.customer.first_name }} - {{ task.order.customer.last_name }}</td>
+            <td>{{ task.order.address.city }}</td>
+            <td>{{ task.process }}</td>
+            <td><a href="#">Details</a></td>
+        </tr>
+      {% endif %}
+     {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

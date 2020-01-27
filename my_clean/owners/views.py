@@ -1,13 +1,15 @@
 from builtins import super
-
+from django.utils import timezone
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
-from django.views.generic.edit import FormView, CreateView
+from django.views.generic.edit import FormView, CreateView, UpdateView
 from django.views.generic import TemplateView, DetailView, ListView
 from datetime import datetime
+from owners.models import User, TeamMembers
 from .forms import LoginForm, OrderForm, \
     OrderTaskForm, CustomerForm, \
-    AddressForm, EvaluationForm
+    AddressForm, EvaluationForm, \
+    STLReviewForm
 from django.contrib.auth import logout, login, authenticate
 from customer.models import Customer, Address, \
     City, State
@@ -39,14 +41,14 @@ class LoginView(FormView):
         elif user.user_type == "stl":
             self.success_url = '/owners/stl_view'
         elif user.user_type == "tl":
-            self.success_url = '/owners/tl_view'
+            self.success_url = '/owners/tl_task_view'
         return super(LoginView, self).form_valid(form)
 
 
 class AgentView(FormView):
     form_class = CustomerForm
     template_name = 'owners/agent_view.html'
-    success_url = '/owners/agent_view'
+    success_url = '/owners/agent_task_view'
     address_form = AddressForm
     order_form = OrderForm
     order_task_form = OrderTaskForm
@@ -75,7 +77,7 @@ class AgentView(FormView):
                     order_task = obj_oder_task_form.save(commit=False)
                     order_task.order = order
                     order_task.created_by = self.request.user
-                    order_task.process = OrderTask.OPEN
+                    order_task.process = OrderTask.IN_PROCESS
                     order_task.save()
                 return HttpResponseRedirect(self.success_url)
 
@@ -91,6 +93,22 @@ class AgentView(FormView):
         return context
 
 
+class AgentTaskView(ListView):
+    template_name = 'owners/agent_task_view.html'
+    model = OrderTask
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super(AgentTaskView, self).get_context_data()
+        context['tasks'] = self.model.objects.filter(created_by=self.request.user)
+        print(context['tasks'])
+        return context
+
+
+class AgentDetailView(DetailView):
+    template_name = 'owners/agent_detail_view.html'
+    # model =
+
+
 class EvaluatorView(ListView):
     template_name = 'owners/evaluator_view.html'
     model = OrderTask
@@ -103,10 +121,8 @@ class EvaluatorView(ListView):
 
 class EvaluationView(FormView):
     form_class = EvaluationForm
-    template_name = 'owners/evaluation_view1.html'
+    template_name = 'owners/evaluation_view.html'
     success_url = '/owners/evaluator_view'
-    pk = 0
-    task_id = 0
 
     def form_valid(self, form):
         form.save()
@@ -114,6 +130,7 @@ class EvaluationView(FormView):
         order.process = Order.EVALUATION_DONE
         order.save()
         order_task = OrderTask.objects.get(id=self.kwargs['task_id'])
+        order_task.schedule_end = timezone.now()
         order_task.process = OrderTask.FINISH
         order_task.save()
         return super(EvaluationView, self).form_valid(form)
@@ -128,10 +145,66 @@ class EvaluationView(FormView):
 
 class STLView(TemplateView):
     template_name = 'owners/stl_view.html'
+    model = Evaluation
+
+    def get_context_data(self, **kwargs):
+        context = super(STLView, self).get_context_data()
+        context['tasks'] = self.model.objects.filter(assigned_to=self.request.user)
+        return context
 
 
-class TLView(TemplateView):
-    template_name = 'owners/tl_view.html'
+class STLReview(UpdateView):
+    template_name = 'owners/stl_review.html'
+    form_class = STLReviewForm
+    model = Evaluation
+    success_url = '/owners/stl_view'
+
+    def form_valid(self, form):
+        assigned_to = form.cleaned_data['assigned_to']
+        team_members = form.cleaned_data['team']
+        schedule_on = form.cleaned_data['expected_time']
+        form.save()
+        order = Order.objects.get(id=self.kwargs['order_id'])
+        order.process = Order.STL_DONE
+        order.save()
+        order_task = OrderTask.objects.get(id=self.kwargs['task_id'])
+        order_task.process = OrderTask.FINISH
+        order_task.schedule_end = timezone.now()
+        order_task.save()
+        new_order_task = OrderTask.objects.create(
+                order_id=self.kwargs['order_id'],
+                created_by=self.request.user,
+                assigned_to=assigned_to,
+                process=OrderTask.IN_PROCESS,
+                schedule_on=schedule_on
+            )
+        o = Team.objects.latest('date')
+        o_id = 'TEAM' + str(datetime.now().year) + '0' + str(o.id + 1)
+        team = Team.objects.create(
+            team_id=o_id,
+            order_id=self.kwargs['order_id'],
+            task=new_order_task,
+            team_leader=assigned_to,
+        )
+        team.team_member.set(team_members)
+        return super(STLReview, self).form_valid(form)
+
+    def get_form_kwargs(self):
+        kwargs = super(STLReview, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        kwargs['task_id'] = self.kwargs['task_id']
+        kwargs['order_id'] = self.kwargs['order_id']
+        return kwargs
+
+
+class TLTaskView(ListView):
+    template_name = 'owners/tl_task_view.html'
+    model = OrderTask
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super(TLTaskView, self).get_context_data()
+        context['tasks'] = self.model.objects.filter(assigned_to=self.request.user)
+        return context
 
 
 def logout_user(request):
