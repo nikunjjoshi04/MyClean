@@ -13,12 +13,14 @@
                 <div class="form-group">
                     <label class="small mb-1" for="{{ form.dust_level.id_for_label }}">{{ form.dust_level.label_tag }}</label>
                     {{ form.dust_level }}
+                    {{ form.dust_level.errors }}
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
                     <label class="small mb-1" for="{{ form.team_members.id_for_label }}">{{ form.team_members.label_tag }}</label>
                     {{ form.team_members }}
+                    {{ form.dust_level.errors }}
                 </div>
             </div>
         </div>
@@ -27,12 +29,14 @@
                 <div class="form-group">
                     <label class="small mb-1" for="{{ form.expected_time.id_for_label }}">{{ form.expected_time.label_tag }}</label>
                     {{ form.expected_time }}
+                    {{ form.dust_level.errors }}
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
                     <label class="small mb-1" for="{{ form.assigned_to.id_for_label }}">{{ form.assigned_to.label_tag }}</label>
                     {{ form.assigned_to }}
+                    {{ form.dust_level.errors }}
                 </div>
             </div>
         </div>

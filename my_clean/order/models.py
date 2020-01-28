@@ -78,11 +78,12 @@ class OrderTask(models.Model):
 
 class Evaluation(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_pk')
-    order_task = models.ForeignKey(OrderTask, on_delete=models.CASCADE)
+    evaluator_order_task = models.ForeignKey(OrderTask, on_delete=models.CASCADE, related_name="evaluator_order_task")
+    stl_order_task = models.ForeignKey(OrderTask, on_delete=models.CASCADE, related_name='stl_order_task')
     dust_level = models.ForeignKey(DustLevelPrice, on_delete=models.CASCADE)
     assigned_to = models.ForeignKey(User, on_delete=models.CASCADE)
     team_members = models.IntegerField()
-    expected_time = models.FloatField()
+    expected_time = models.DateTimeField()
     estimated_price = models.FloatField()
     evaluation_date = models.DateTimeField(default=timezone.now())
 

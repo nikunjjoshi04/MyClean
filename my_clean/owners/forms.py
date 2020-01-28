@@ -140,6 +140,7 @@ class EvaluationForm(forms.ModelForm):
         dust_level_price = DustLevelPrice.objects.get(dust_level=dust_level)
         estimated_price = dust_level_price.price * no_of_team_members
         instance.order_id = self.pk
+        instance.evaluator_order_task_id = self.task_id
         instance.estimated_price = estimated_price
         assigned_to = self.cleaned_data['assigned_to']
         print(assigned_to)
@@ -150,7 +151,7 @@ class EvaluationForm(forms.ModelForm):
             process=OrderTask.IN_PROCESS,
             # schedule_end=timezone.now()
         )
-        instance.order_task = order_task
+        instance.stl_order_task = order_task
         instance.save()
         return super(EvaluationForm, self).save(commit=commit)
 
@@ -174,14 +175,14 @@ class STLReviewForm(forms.ModelForm):
             attrs={'class': 'form-control py-2'}
         )
     )
-    expected_time = forms.FloatField(
-        widget=forms.TextInput(
+    expected_time = forms.DateTimeField(
+        widget=forms.DateTimeInput(
             attrs={'class': 'form-control py-2'}
         )
     )
     estimated_price = forms.FloatField(
         widget=forms.TextInput(
-            attrs={'class': 'form-control py-2'}
+            attrs={'class': 'form-control py-2', 'readonly': 'readonly'}
         )
     )
 

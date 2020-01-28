@@ -1,11 +1,12 @@
 from builtins import super
 from django.utils import timezone
-from django.http import HttpResponseRedirect
+import json
+from django.core import serializers
+from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.views.generic.edit import FormView, CreateView, UpdateView
 from django.views.generic import TemplateView, DetailView, ListView
 from datetime import datetime
-from owners.models import User, TeamMembers
 from .forms import LoginForm, OrderForm, \
     OrderTaskForm, CustomerForm, \
     AddressForm, EvaluationForm, \
@@ -142,6 +143,10 @@ class EvaluationView(FormView):
         kwargs['task_id'] = self.kwargs['task_id']
         return kwargs
 
+    def form_invalid(self, form):
+        print(form.errors)
+        return super(EvaluationView, self).form_invalid(form)
+
 
 class STLView(TemplateView):
     template_name = 'owners/stl_view.html'
@@ -196,6 +201,11 @@ class STLReview(UpdateView):
         kwargs['order_id'] = self.kwargs['order_id']
         return kwargs
 
+    def get_context_data(self, **kwargs):
+        context = super(STLReview, self).get_context_data()
+        context['evaluation'] = self.model.objects.get(stl_order_task=self.kwargs['task_id'])
+        return context
+
 
 class TLTaskView(ListView):
     template_name = 'owners/tl_task_view.html'
@@ -205,6 +215,15 @@ class TLTaskView(ListView):
         context = super(TLTaskView, self).get_context_data()
         context['tasks'] = self.model.objects.filter(assigned_to=self.request.user)
         return context
+
+
+def stl_calc(request):
+    members = request.GET['members']
+    dust_level = request.GET['dust_level']
+    dust_price = DustLevelPrice.objects.get(dust_level=dust_level)
+    print(type(members), dust_level, type(dust_price.price))
+    price = dust_price.price * int(members)
+    return JsonResponse({'price': str(price)})
 
 
 def logout_user(request):

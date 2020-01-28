@@ -3,25 +3,63 @@
 
 {% block content %}
 <div class="breadcrumb mb-4">
-      <li class="breadcrumb-item pt-1 text-center"><a href="{% url 'owners:stl_view' %}">Tasks List</a></li>
-      <li class="breadcrumb-item pt-1 text-center">Evaluated Order Details</li>
-  </div>
-<form method="POST">
-    {% csrf_token %}
-     <div class="container p-3 my-3 border">
+    <li class="breadcrumb-item pt-1 text-center"><a href="#">Tasks List</a></li>
+    <li class="breadcrumb-item pt-1 text-center">Evaluated Order Details</li>
+</div>
+<div class="container p-3 my-3 border">
+    <form method="POST">
+        {% csrf_token %}
+        <h5 class="text-center">{{ evaluation.order.unique_id }}</h5>
+        <br>
         <div class="form-row">
             <div class="col-md-6">
                 <div class="form-group">
-                    <label class="small mb-1" for="{{ form.team_members.id_for_label }}">
-                        {{ form.team_members.label_tag }}</label>
-                    {{ form.team_members }}
+                    <label class="small mb-1">Customer Name:</label>
+                    <h5>{{ evaluation.order.customer.first_name.capitalize }} -
+                        {{ evaluation.order.customer.last_name.capitalize }}</h5>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
-                    <label class="small mb-1" for="{{ form.expected_time.id_for_label }}">
-                        {{ form.expected_time.label_tag }}</label>
-                    {{ form.expected_time }}
+                    <label class="small mb-1">City:</label>
+                    <h5>{{ evaluation.order.address.city.city_name.capitalize }} -
+                        {{ evaluation.order.address.city.state.state_name.capitalize }}</h5>
+                </div>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="small mb-1">Contact No:</label>
+                    <h5>{{ evaluation.order.customer.mobile_no }}</h5>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="small mb-1">Email Address:</label>
+                    <h5>{{ evaluation.order.customer.email }}</h5>
+                </div>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label class="small mb-1" id="team_members_id" dust_level="{{ evaluation.dust_level }}" for="{{ form.team_members.id_for_label }}">
+                        {{ form.team_members.label_tag }}</label>
+                    {{ form.team_members }}
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label class="small mb-1" for="id_discount">Discount:</label>
+                        <input class="form-control mt-2 py-2" type="text" placeholder="" id="id_discount" name="discount">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label class="small mb-1" for="{{ form.estimated_price.id_for_label }}">
+                        {{ form.estimated_price.label_tag }}</label>
+                    {{ form.estimated_price}}
                 </div>
             </div>
         </div>
@@ -35,18 +73,76 @@
             </div>
             <div class="col-md-6">
                 <div class="form-group">
-                    <label class="small mb-1" for="{{ form.estimated_price.id_for_label }}">
-                        {{ form.estimated_price.label_tag }}</label>
-                    {{ form.estimated_price }}
+                    <label class="small mb-1" for="{{ form.expected_time.id_for_label }}">
+                        {{ form.expected_time.label_tag }}</label>
+                    {{ form.expected_time }}
                 </div>
             </div>
         </div>
-         <div class="form-group">
+        <div class="form-group">
             <label class="small mb-1" for="{{ form.team.id_for_label }}">
                 {{ form.team.label_tag }}</label>
             {{ form.team }}
         </div>
-    </div>
-    <button class="btn btn-primary btn-block">Submit</button>
-</form>
+        <hr>
+        <button class="btn btn-primary btn-block">Submit</button>
+    </form>
+</div>
+
+<script>
+ $(document).ready(function(){
+      var d = $("#id_estimated_price").val();
+      var members = $("#id_team_members").val();
+      $("#id_estimated_price").attr('amt', d);
+      $("#id_team_members").attr('members', members);
+
+      $("#id_discount").keyup(function(){
+       var discount = $(this).val();
+       var k = $("#id_estimated_price").attr('amt');
+       var a = k - discount;
+       if (a <= 0)
+       {
+        $("#id_estimated_price").attr('value', k);
+       }
+       else
+       {
+        $("#id_estimated_price").attr('value', a);
+       }
+      });
+
+      $('#id_team_members').change(function(){
+	  var url = "/owners/stl_calc";
+	  var members =  $(this).val();
+	  var dust_level = $("#team_members_id").attr('dust_level');
+	  var k = $("#id_estimated_price").attr('amt');
+
+      console.info(url);
+      console.info(members);
+      console.info(dust_level);
+
+			$.ajax({
+				url:url,
+				data:{
+					members:members,
+					dust_level:dust_level
+				},
+				success:function(data){
+					//var data = $.parseJSON(data);
+					console.info(data.price);
+					if (data.price <= 0)
+                    {
+                     //$("#id_estimated_price").attr('value', k);
+                    }
+                    else
+                    {
+                     $("#id_estimated_price").attr('value', data.price);
+                    }
+				}
+			});
+		});
+ });
+
+
+
+</script>
 {% endblock %}
