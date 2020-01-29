@@ -220,9 +220,17 @@ class TLTaskView(ListView):
 def stl_calc(request):
     members = request.GET['members']
     dust_level = request.GET['dust_level']
+    discount = request.GET['discount']
     dust_price = DustLevelPrice.objects.get(dust_level=dust_level)
-    print(type(members), dust_level, type(dust_price.price))
-    price = dust_price.price * int(members)
+    print(members, dust_level, dust_price.price, discount)
+    # print(discount, type(discount))
+    if discount is "" or int(discount) < 0:
+        discount = 0
+    print(members, dust_level, dust_price.price, discount)
+    price = (dust_price.price * int(members)) - int(discount)
+    # price = 20.0
+    # price = dust_price.price * int(members)
+    print(price)
     return JsonResponse({'price': str(price)})
 
 

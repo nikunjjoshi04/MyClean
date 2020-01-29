@@ -70,7 +70,6 @@ class OrderTask(models.Model):
     schedule_on = models.DateTimeField(null=True)
     schedule_end = models.DateTimeField(null=True)
     message = models.CharField(max_length=200, null=True)
-    description = models.TextField(null=True)
 
     def __str__(self):
         return "{} - {}".format(self.order.unique_id, self.process)
@@ -86,6 +85,7 @@ class Evaluation(models.Model):
     expected_time = models.DateTimeField()
     estimated_price = models.FloatField()
     evaluation_date = models.DateTimeField(default=timezone.now())
+    description = models.TextField(null=True)
 
     def __str__(self):
         return '{} - {}'.format(self.expected_time, self.estimated_price)

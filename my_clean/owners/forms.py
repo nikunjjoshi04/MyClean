@@ -48,14 +48,15 @@ class OrderTaskForm(forms.ModelForm):
         widget=DateTimePicker(),
         required=False
     )
-    description = forms.CharField(
-        widget=forms.Textarea(attrs={'class': 'form-control py-2', 'rows': '3'}),
-        required=False
+    message = forms.CharField(
+        widget=forms.TextInput(
+            attrs={'class': 'form-control py-2'}
+        )
     )
 
     class Meta:
         model = OrderTask
-        fields = ['assigned_to', 'schedule_on', 'description']
+        fields = ['assigned_to', 'schedule_on', 'message']
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
@@ -91,17 +92,16 @@ class AddressForm(forms.ModelForm):
 
 
 class EvaluationForm(forms.ModelForm):
+    description = forms.CharField(
+        widget=forms.Textarea(
+            attrs={'class': 'form-control py-2', 'rows': '3'}
+        ),
+        required=False
+    )
     assigned_to = forms.ModelChoiceField(
         queryset=User.objects.all(),
         empty_label="SELECT",
         widget=forms.Select(attrs={'class': 'form-control py-2'})
-    )
-    dust_level = forms.ModelChoiceField(
-        queryset=DustLevelPrice.objects.all(),
-        empty_label="SELECT",
-        widget=forms.Select(
-            attrs={'class': 'form-control py-2'}
-        )
     )
     dust_level = forms.ModelChoiceField(
         queryset=DustLevelPrice.objects.all(),
@@ -131,7 +131,7 @@ class EvaluationForm(forms.ModelForm):
 
     class Meta:
         model = Evaluation
-        fields = ['dust_level', 'team_members', 'expected_time', 'assigned_to']
+        fields = ['dust_level', 'team_members', 'expected_time', 'assigned_to', 'description']
 
     def save(self, commit=True):
         instance = super(EvaluationForm, self).save(commit=False)
@@ -177,7 +177,9 @@ class STLReviewForm(forms.ModelForm):
     )
     expected_time = forms.DateTimeField(
         widget=forms.DateTimeInput(
-            attrs={'class': 'form-control py-2'}
+            attrs={
+                'class': 'form-control py-2'
+            },
         )
     )
     estimated_price = forms.FloatField(

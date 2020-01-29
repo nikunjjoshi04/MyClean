@@ -44,7 +44,8 @@
         <div class="form-row">
             <div class="col-md-4">
                 <div class="form-group">
-                    <label class="small mb-1" id="team_members_id" dust_level="{{ evaluation.dust_level }}" for="{{ form.team_members.id_for_label }}">
+                    <label class="small mb-1" id="team_members_id" dust_level="{{ evaluation.dust_level }}"
+                           for="{{ form.team_members.id_for_label }}">
                         {{ form.team_members.label_tag }}</label>
                     {{ form.team_members }}
                 </div>
@@ -52,7 +53,7 @@
             <div class="col-md-4">
                 <div class="form-group">
                     <label class="small mb-1" for="id_discount">Discount:</label>
-                        <input class="form-control mt-2 py-2" type="text" placeholder="" id="id_discount" name="discount">
+                    <input class="form-control mt-2 py-2" type="text" placeholder="" id="id_discount" name="discount">
                 </div>
             </div>
             <div class="col-md-4">
@@ -73,76 +74,149 @@
             </div>
             <div class="col-md-6">
                 <div class="form-group">
+                    <div id="date">
                     <label class="small mb-1" for="{{ form.expected_time.id_for_label }}">
                         {{ form.expected_time.label_tag }}</label>
                     {{ form.expected_time }}
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="form-group">
-            <label class="small mb-1" for="{{ form.team.id_for_label }}">
-                {{ form.team.label_tag }}</label>
-            {{ form.team }}
-        </div>
-        <hr>
-        <button class="btn btn-primary btn-block">Submit</button>
+            <div class="form-group">
+                <label class="small mb-1" for="{{ form.team.id_for_label }}">
+                    {{ form.team.label_tag }}</label>
+                {{ form.team }}
+            </div>
+            <hr>
+            <button class="btn btn-primary btn-block">Submit</button>
     </form>
 </div>
 
+
+{% block js %}
 <script>
  $(document).ready(function(){
-      var d = $("#id_estimated_price").val();
-      var members = $("#id_team_members").val();
-      $("#id_estimated_price").attr('amt', d);
-      $("#id_team_members").attr('members', members);
-
-      $("#id_discount").keyup(function(){
-       var discount = $(this).val();
-       var k = $("#id_estimated_price").attr('amt');
-       var a = k - discount;
-       if (a <= 0)
-       {
-        $("#id_estimated_price").attr('value', k);
-       }
-       else
-       {
-        $("#id_estimated_price").attr('value', a);
-       }
-      });
+     var d = $("#id_estimated_price").val();
+     $("#id_estimated_price").attr('actual-amt', d);
+     var members = $("#id_team_members").val();
+     $("#id_team_members").attr('actual-members', members);
 
       $('#id_team_members').change(function(){
+          var actual_amt = $("#id_estimated_price").attr('actual-amt');
+          var d = $("#id_estimated_price").val();
+          $("#id_estimated_price").attr('amt', d);
+          var members = $("#id_team_members").val();
+          $("#id_team_members").attr('members', members);
+          var discount = $("#id_discount").val();
+          var url = "/owners/stl_calc";
+          var members =  $(this).val();
+          var dust_level = $("#team_members_id").attr('dust_level');
+          var k = $("#id_estimated_price").attr('amt');
+
+          /* console.info("url--"+url);
+          console.info("members--"+members);
+          console.info("dust_level--"+dust_level);
+          console.info("discount--"+discount);
+          console.info("actual_amt--"+actual_amt); */
+
+          if(members <= 0)
+          {
+            $(this).attr("class", "form-control py-2 border-danger");
+            $(this).after('<div id="msg" class="text-danger">None Zero Or None String Field</div>');
+            $("#id_estimated_price").attr('value', actual_amt);
+          }
+          else
+          {
+            $(this).attr("class", "form-control py-2");
+            $("#msg").hide();
+            $.ajax({
+                    url:url,
+                    data:{
+                        members:members,
+                        dust_level:dust_level,
+                        discount:discount
+                    },
+                    success:function(data){
+                        //var data = $.parseJSON(data);
+                        console.info(data.price);
+                        if (data.price <= 0)
+                        {
+                         $("#id_estimated_price").attr('value', k);
+                        }
+                        else
+                        {
+                         $("#id_estimated_price").attr('value', data.price);
+                        }
+                    }
+            });
+          }
+	  });
+
+	$('#id_discount').change(function(){
+	  var actual_amt = $("#id_estimated_price").attr('actual-amt');
+      var d = $("#id_estimated_price").val();
+      $("#id_estimated_price").attr('amt', d);
+      var members = $("#id_team_members").val();
+      $("#id_team_members").attr('members', members);
+      var k = $("#id_estimated_price").attr('amt');
+
 	  var url = "/owners/stl_calc";
-	  var members =  $(this).val();
+
+	  var members =  $("#id_team_members").val();
+	  var discount = $(this).val();
 	  var dust_level = $("#team_members_id").attr('dust_level');
-	  var k = $("#id_estimated_price").attr('amt');
 
-      console.info(url);
-      console.info(members);
-      console.info(dust_level);
+      /*console.info("url--"+url);
+      console.info("members--"+members);
+      console.info("dust_level--"+dust_level);
+      console.info("discount--"+discount);
+      console.info("actual_amt--"+actual_amt);*/
 
-			$.ajax({
+       if(discount < 0)
+      {
+        $(this).attr("class", "form-control py-2 border-danger");
+        $(this).after('<div id="msg" class="text-danger">None Zero Or None String Field</div>');
+        $("#id_estimated_price").attr('value', k);
+      }
+      else
+      {
+        $(this).attr("class", "form-control mt-2 py-2 ");
+        $("#msg").hide();
+        $.ajax({
 				url:url,
 				data:{
 					members:members,
-					dust_level:dust_level
+					dust_level:dust_level,
+					discount:discount
 				},
 				success:function(data){
 					//var data = $.parseJSON(data);
 					console.info(data.price);
 					if (data.price <= 0)
                     {
-                     //$("#id_estimated_price").attr('value', k);
+                     $("#id_estimated_price").attr('value', k);
                     }
                     else
                     {
                      $("#id_estimated_price").attr('value', data.price);
                     }
 				}
-			});
 		});
+      }
+	});
  });
 
-
+</script>
+<script type="text/javascript">
+    $(function () {
+        var d_date = $("#id_expected_time").val();
+        console.info(d_date);
+        $("#id_expected_time").datetimepicker({
+            defaultDate: d_date,
+        });
+    });
 
 </script>
+{% endblock %}
+
 {% endblock %}
