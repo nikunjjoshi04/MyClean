@@ -26,7 +26,7 @@
         <td>{{ task.order.customer.first_name }} - {{ task.order.customer.last_name }}</td>
         <td>{{ task.order.address.city }}</td>
         <td>{{ task.process }}</td>
-        <td><a href="#">Details</a></td>
+        <td><a href="{% url 'owners:agent_detail_view' task.id %}">Details</a></td>
     </tr>
     {% endfor %}
     </tbody>

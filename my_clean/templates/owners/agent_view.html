@@ -24,6 +24,7 @@
         </div>
 
         <div class="form-group">
+            {{ address.city.errors }}
             <label class="small mb-1" for="{{ address.city.id_for_label }}">{{ address.city.label_tag }}</label>
             <!--        <input class="form-control py-4" id="inputEmailAddress" type="email" placeholder="Enter email address" />-->
             {{ address.city }}
@@ -31,6 +32,7 @@
         <div class="form-row">
             <div class="col-md-6">
                 <div class="form-group">
+                    {{ address.street.errors }}
                     <label class="small mb-1" for="{{ address.street.id_for_label }}">
                         {{ address.street.label_tag }}</label>
                     {{ address.street }}
@@ -38,6 +40,7 @@
             </div>
             <div class="col-md-6">
                 <div class="form-group">
+                    {{ address.building.errors }}
                     <label class="small mb-1" for="{{ address.building.id_for_label }}">
                         {{ address.building.label_tag }}</label>
                     {{ address.building }}
@@ -47,10 +50,12 @@
     </div>
     <div class="container p-3 my-3 border">
         <div class="form-group">
+            {{ order.service.errors }}
             <label class="small mb-1" for="{{ order.service.id_for_label }}">{{ order.service.label_tag }}</label>
             {{ order.service }}
         </div>
         <div class="form-group">
+            {{ order.description.errors }}
             <label class="small mb-1" for="{{ order.description.id_for_label }}">
                 {{ order.description.label_tag }}</label>
             {{ order.description }}
@@ -61,6 +66,7 @@
         <div class="form-row">
             <div class="col-md-6">
                 <div class="form-group">
+                    {{ order_task.schedule_on.errors }}
                     <label class="small mb-1" for="{{ order_task.schedule_on.id_for_label }}">
                         {{ order_task.schedule_on.label_tag }}</label>
                     {{ order_task.schedule_on }}
@@ -68,6 +74,7 @@
             </div>
             <div class="col-md-6">
                 <div class="form-group">
+                    {{ order_task.assigned_to.errors }}
                     <label class="small mb-1" for="{{ order_task.assigned_to.id_for_label }}">
                         {{ order_task.assigned_to.label_tag }}</label>
                     {{ order_task.assigned_to }}
@@ -75,6 +82,7 @@
             </div>
         </div>
         <div class="form-group">
+            {{ order_task.message.errors }}
             <label class="small mb-1" for="{{ order_task.message.id_for_label }}">
                 {{ order_task.message.label_tag }}</label>
             {{ order_task.message }}
@@ -82,4 +90,16 @@
     </div>
     <button class="btn btn-primary btn-block">Submit</button>
 </form>
+
+<!--id_schedule_on-->
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript">
+    $(function () {
+        $("#id_schedule_on").datetimepicker({
+        format: 'YYYY-MM-DD HH:mm'
+    });
+    });
+</script>
 {% endblock %}

@@ -45,7 +45,7 @@ class OrderTaskForm(forms.ModelForm):
         widget=forms.Select(attrs={'class': 'form-control py-2'})
     )
     schedule_on = forms.DateTimeField(
-        widget=DateTimePicker(),
+        widget=forms.DateTimeInput(attrs={'class': 'form-control py-2'}),
         required=False
     )
     message = forms.CharField(
@@ -116,7 +116,9 @@ class EvaluationForm(forms.ModelForm):
         )
     )
     expected_time = forms.DateTimeField(
-        widget=DateTimePicker()
+        widget=forms.DateTimeInput(
+            attrs={'class': 'form-control py-2'}
+        )
     )
 
     def __init__(self, *args, **kwargs):
@@ -170,7 +172,7 @@ class STLReviewForm(forms.ModelForm):
             attrs={'class': 'form-control py-2'}
         )
     )
-    team_members = forms.FloatField(
+    team_members = forms.IntegerField(
         widget=forms.TextInput(
             attrs={'class': 'form-control py-2'}
         )
@@ -179,7 +181,7 @@ class STLReviewForm(forms.ModelForm):
         widget=forms.DateTimeInput(
             attrs={
                 'class': 'form-control py-2'
-            },
+            }
         )
     )
     estimated_price = forms.FloatField(
@@ -187,10 +189,15 @@ class STLReviewForm(forms.ModelForm):
             attrs={'class': 'form-control py-2', 'readonly': 'readonly'}
         )
     )
+    discount = forms.IntegerField(
+        widget=forms.TextInput(
+            attrs={'class': 'form-control py-2'}
+        )
+    )
 
     class Meta:
         model = Evaluation
-        fields = ['team_members', 'expected_time', 'estimated_price']
+        fields = ['team_members', 'expected_time', 'estimated_price', 'discount']
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)

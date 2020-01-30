@@ -3,7 +3,7 @@
 
 {% block content %}
 <div class="breadcrumb mb-4">
-    <li class="breadcrumb-item pt-1 text-center"><a href="#">Tasks List</a></li>
+    <li class="breadcrumb-item pt-1 text-center"><a href="{% url 'owners:stl_view' %}">Tasks List</a></li>
     <li class="breadcrumb-item pt-1 text-center">Evaluated Order Details</li>
 </div>
 <div class="container p-3 my-3 border">
@@ -52,8 +52,9 @@
             </div>
             <div class="col-md-4">
                 <div class="form-group">
-                    <label class="small mb-1" for="id_discount">Discount:</label>
-                    <input class="form-control mt-2 py-2" type="text" placeholder="" id="id_discount" name="discount">
+                    <label class="small mb-1" for="{{ form.discount.id_for_label }}">
+                        {{ form.discount.label_tag }}</label>
+                    {{ form.discount }}
                 </div>
             </div>
             <div class="col-md-4">
@@ -92,6 +93,9 @@
     </form>
 </div>
 
+
+
+{% endblock %}
 
 {% block js %}
 <script>
@@ -137,7 +141,6 @@
                         discount:discount
                     },
                     success:function(data){
-                        //var data = $.parseJSON(data);
                         console.info(data.price);
                         if (data.price <= 0)
                         {
@@ -166,11 +169,11 @@
 	  var discount = $(this).val();
 	  var dust_level = $("#team_members_id").attr('dust_level');
 
-      /*console.info("url--"+url);
+      console.info("url--"+url);
       console.info("members--"+members);
       console.info("dust_level--"+dust_level);
       console.info("discount--"+discount);
-      console.info("actual_amt--"+actual_amt);*/
+      console.info("actual_amt--"+actual_amt);
 
        if(discount < 0)
       {
@@ -180,7 +183,7 @@
       }
       else
       {
-        $(this).attr("class", "form-control mt-2 py-2 ");
+        $(this).attr("class", "form-control py-2 ");
         $("#msg").hide();
         $.ajax({
 				url:url,
@@ -205,18 +208,19 @@
       }
 	});
  });
-
 </script>
 <script type="text/javascript">
     $(function () {
-        var d_date = $("#id_expected_time").val();
-        console.info(d_date);
         $("#id_expected_time").datetimepicker({
-            defaultDate: d_date,
-        });
+        format: 'YYYY-MM-DD HH:mm',
+        icons: {
+                    time: "fa fa-clock-o",
+                    date: "fa fa-calendar",
+                    up: "fa fa-arrow-up",
+                    down: "fa fa-arrow-down"
+                }
     });
-
+    });
 </script>
-{% endblock %}
 
 {% endblock %}

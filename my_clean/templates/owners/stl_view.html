@@ -58,7 +58,7 @@
             <td>{{ task.order.customer.first_name }} {{ task.order.customer.last_name }}</td>
             <td>{{ task.stl_order_task.created_by }}</td>
             <td>{{ task.stl_order_task.process }}</td>
-          <th><a href="#">Detail</a></th>
+          <th><a href="{% url 'owners:stl_detail_view' task.stl_order_task.id %}">Detail</a></th>
         </tr>
         {% endif %}
       {% endfor %}

@@ -12,18 +12,13 @@
     <title>Modern Business - Start Bootstrap Template</title>
 
     <!-- Bootstrap core CSS -->
-    <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+
     <!--   Custom styles for this template-->
     <link href="{% static 'css/modern-business.css' %}" rel="stylesheet">
-    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.css">
-    <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
-<!--        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"-->
-<!--                integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"-->
-<!--                crossorigin="anonymous"></script>-->
-
-
+    <link href="{% static 'css/font-awesome.min.css' %}" rel="stylesheet">
     <link href="{% static 'css/bootstrap-datetimepicker.css' %}" rel="stylesheet">
-    <link href="{% static 'css/bootstrap-datetimepicker-standalone.css' %}" rel="stylesheet">
+
 
 
 </head>
@@ -130,11 +125,21 @@
     <!-- /.container -->
 </footer>
 
-<!-- Bootstrap core JavaScript -->
-<script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
-<script src="{% static 'vendor/jquery/jquery.slim.min.js' %}"></script>
+<!-- Bootstrap core JavaScript And Css-->
+<script src="{% static 'js/jquery.min.js' %}"></script>
+<!--<script-->
+<!--  src="https://code.jquery.com/jquery-3.4.1.min.js"-->
+<!--  integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="-->
+<!--  crossorigin="anonymous"></script>-->
 <script src="{% static 'js/moment.js' %}"></script>
-<script src="{% static 'js/bootstrap-datetimepicker.js' %}"></script>
+<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'js/bootstrap.min.js' %}"></script>
+<!--<script src="{% static 'js/jquery.slim.min.js' %}"></script>-->
+<!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>-->
+<script src="{% static 'js/bootstrap-datetimepicker.min.js' %}"></script>
+<script src="{% static 'js/contact_me.js' %}"></script>
+<script src="{% static 'js/jqBootstrapValidation.js' %}"></script>
+
 {% block js %}
 
 {% endblock %}

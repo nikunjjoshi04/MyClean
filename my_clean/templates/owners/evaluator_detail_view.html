@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="breadcrumb mb-4">
+    <li class="breadcrumb-item pt-1 text-center"><a href="{% url 'owners:evaluator_view' %}">Tasks List</a></li>
+    <li class="breadcrumb-item pt-1 text-center">Order Order Detail</li>
+</div>
+<div class="container p-3 my-3 border pl-5">
+    <h5 class="text-center text-light py-2 px-2 bg-dark">{{ evaluation.order.unique_id }} - {{ evaluation.order.process }} - {{ evaluation.order.service }}</h5>
+    <div class="row mt-5">
+        <div class="col-md-6">
+            <p>Customer Name:<br><br> {{ evaluation.order.customer.first_name.capitalize }}  {{ evaluation.order.customer.last_name.capitalize }}</p>
+        </div>
+        <div class="col-md-6">
+            <p>City:<br><br> {{ evaluation.order.address.city.city_name.capitalize }}  {{ evaluation.order.address.city.state.state_name.capitalize }}</p>
+        </div>
+    </div>
+    <div class="row mt-5">
+        <div class="col-md-6">
+            <p>Contact:<br><br> {{ evaluation.order.customer.mobile_no }} <br> {{ evaluation.order.customer.email }}</p>
+        </div>
+        <div class="col-md-6">
+            <p>Address:<br><br> {{ evaluation.order.address.street }} <br> {{ evaluation.order.address.building }}</p>
+        </div>
+    </div>
+    <div class="row mt-5">
+        <div class="col-md-3">
+            <p>Booked By Agent:<br><br>  {{ evaluation.evaluator_order_task.created_by.get_full_name }}</p>
+        </div>
+        <div class="col-md-3">
+            <p>Booked Time:<br><br> {{ evaluation.evaluator_order_task.order.date.date }} <br> {{ evaluation.evaluator_order_task.date.time }}</p>
+        </div>
+        <div class="col-md-3">
+            <p>Assigned Evaluator:<br><br>  {{ evaluation.evaluator_order_task.assigned_to.get_full_name }}</p>
+        </div>
+        <div class="col-md-3">
+            <p>Evaluation Time:<br><br> {{ evaluation.evaluator_order_task.schedule_on.date }} <br> {{ evaluation.evaluator_order_task.schedule_on.time }}</p>
+        </div>
+    </div>
+    <div class="row mt-5">
+        <div class="col-md-3">
+            <p>Dust Level Price:<br><br>  {{ evaluation.dust_level }} - {{ evaluation.dust_level.price }}</p>
+        </div>
+        <div class="col-md-3">
+            <p>Team Members:<br><br> {{ evaluation.team_members }}</p>
+        </div>
+        <div class="col-md-3">
+            <p>Estimated Price:<br><br> {{ evaluation.estimated_price }}</p>
+        </div>
+        <div class="col-md-3">
+            <p>Assigned Senior Team Leader:<br><br> {{ evaluation.assigned_to.get_full_name }}</p>
+        </div>
+    </div>
+    <div class="row mt-5">
+        <div class="col-md-6">
+            <p>Evaluation Complete:<br><br> {{ evaluation.evaluation_date.date }} <br> {{ evaluation.evaluation_date.time }}</p>
+        </div>
+        <div class="col-md-6">
+            <p>Cleaning Time:<br><br> {{ evaluation.expected_time.date }} <br> {{ evaluation.expected_time.time }}</p>
+        </div>
+    </div>
+    <p class="mt-5">Order Description: </p>
+    <div class="container p-3 my-3 border pl-5">
+        <h6>{{ evaluation.order.description }}</h6>
+    </div>
+    <p class="mt-5">Evaluation Description: </p>
+    <div class="container p-3 my-3 border pl-5">
+        <h6>{{ evaluation.description }}</h6>
+    </div>
+    <p class="mt-5">Message for Evaluator: </p>
+    <div class="container p-3 my-3 border pl-5">
+        <h5 class="text-center">{{ evaluation.evaluator_order_task.message }}</h5>
+    </div>
+</div>
+
+
+<!--<div class="col-lg-8 mb-4">-->
+<!--    &lt;!&ndash; Embedded Google Map &ndash;&gt;-->
+<!--    <iframe width="100%" height="400px" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"-->
+<!--            src="http://maps.google.com/maps?hl=en&amp;ie=UTF8&amp;ll=23.022444, 72.509648&amp;spn=56.506174,79.013672&amp;t=m&amp;z=4&amp;output=embed">-->
+<!--    </iframe>-->
+<!--</div>-->
+
+{% endblock %}

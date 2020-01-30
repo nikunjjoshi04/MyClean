@@ -86,6 +86,8 @@ class Evaluation(models.Model):
     estimated_price = models.FloatField()
     evaluation_date = models.DateTimeField(default=timezone.now())
     description = models.TextField(null=True)
+    discount = models.IntegerField(null=True)
+    accepted = models.BooleanField(default=False)
 
     def __str__(self):
         return '{} - {}'.format(self.expected_time, self.estimated_price)

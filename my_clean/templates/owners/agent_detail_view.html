@@ -1,5 +1,59 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<p>Nikka</p>
+
+<div class="breadcrumb mb-4">
+    <li class="breadcrumb-item pt-1 text-center"><a href="{% url 'owners:agent_task_view' %}">Tasks List</a></li>
+    <li class="breadcrumb-item pt-1 text-center">Order Order Detail</li>
+</div>
+<div class="container p-3 my-3 border pl-5">
+    <h5 class="text-center text-light py-2 px-2 bg-dark">{{ order.order.unique_id }} - {{ order.order.process }} - {{ order.order.service }}</h5>
+    <div class="row mt-5">
+        <div class="col-md-6">
+            <p>Customer Name:<br><br> {{ order.order.customer.first_name.capitalize }}  {{ order.order.customer.last_name.capitalize }}</p>
+        </div>
+        <div class="col-md-6">
+            <p>City:<br><br> {{ order.order.address.city.city_name.capitalize }}  {{ order.order.address.city.state.state_name.capitalize }}</p>
+        </div>
+    </div>
+    <div class="row mt-5">
+        <div class="col-md-6">
+            <p>Contact:<br><br> {{ order.order.customer.mobile_no }} <br> {{ order.order.customer.email }}</p>
+        </div>
+        <div class="col-md-6">
+            <p>Address:<br><br> {{ order.order.address.street }} <br> {{ order.order.address.building }}</p>
+        </div>
+    </div>
+    <div class="row mt-5">
+        <div class="col-md-3">
+            <p>Booked By:<br><br>  {{ order.created_by.get_full_name }}</p>
+        </div>
+        <div class="col-md-3">
+            <p>Booked Time:<br><br> {{ order.date.date }} <br> {{ order.date.time }}</p>
+        </div>
+        <div class="col-md-3">
+            <p>Assigned To:<br><br>  {{ order.assigned_to.get_full_name }}</p>
+        </div>
+        <div class="col-md-3">
+            <p>Evaluation Time:<br><br> {{ order.schedule_on.date }} <br> {{ order.schedule_on.time }}</p>
+        </div>
+    </div>
+    <p class="mt-5">Message for Evaluator: </p>
+    <div class="container p-3 my-3 border pl-5">
+        <h5 class="text-center">{{ order.message }}</h5>
+    </div>
+    <p class="mt-5">Order Description: </p>
+    <div class="container p-3 my-3 border pl-5">
+        <h6>{{ order.order.description }}</h6>
+    </div>
+</div>
+
+
+<!--<div class="col-lg-8 mb-4">-->
+<!--    &lt;!&ndash; Embedded Google Map &ndash;&gt;-->
+<!--    <iframe width="100%" height="400px" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"-->
+<!--            src="http://maps.google.com/maps?hl=en&amp;ie=UTF8&amp;ll=23.022444, 72.509648&amp;spn=56.506174,79.013672&amp;t=m&amp;z=4&amp;output=embed">-->
+<!--    </iframe>-->
+<!--</div>-->
+
 {% endblock %}

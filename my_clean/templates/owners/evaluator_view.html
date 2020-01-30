@@ -62,7 +62,7 @@
             <td>{{ task.created_by }}</td>
             <td>{{ task.schedule_on.date }}<br>{{ task.schedule_on.time }}</td>
             <td>{{ task.process }}</td>
-            <td class="text-danger"><a href="#">Detail</a></td>
+            <td class="text-danger"><a href="{% url 'owners:evaluator_detail_view' task.id %}">Detail</a></td>
           </tr>
         {% endif %}
       {% endfor %}

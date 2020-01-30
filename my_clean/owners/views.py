@@ -107,17 +107,17 @@ class AgentTaskView(ListView):
 
 class AgentDetailView(DetailView):
     template_name = 'owners/agent_detail_view.html'
-    # model =
+    model = OrderTask
+    context_object_name = 'order'
 
 
 class EvaluatorView(ListView):
     template_name = 'owners/evaluator_view.html'
     model = OrderTask
+    context_object_name = 'tasks'
 
-    def get_context_data(self, **kwargs):
-        context = super(EvaluatorView, self).get_context_data()
-        context['tasks'] = self.model.objects.filter(assigned_to=self.request.user)
-        return context
+    def get_queryset(self):
+        return self.model.objects.filter(assigned_to=self.request.user)
 
 
 class EvaluationView(FormView):
@@ -148,6 +148,15 @@ class EvaluationView(FormView):
         return super(EvaluationView, self).form_invalid(form)
 
 
+class EvaluatorDetailView(TemplateView):
+    template_name = 'owners/evaluator_detail_view.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(EvaluatorDetailView, self).get_context_data()
+        context['evaluation'] = Evaluation.objects.get(evaluator_order_task=kwargs['id'])
+        return context
+
+
 class STLView(TemplateView):
     template_name = 'owners/stl_view.html'
     model = Evaluation
@@ -168,7 +177,9 @@ class STLReview(UpdateView):
         assigned_to = form.cleaned_data['assigned_to']
         team_members = form.cleaned_data['team']
         schedule_on = form.cleaned_data['expected_time']
-        form.save()
+        instance = form.save(commit=False)
+        instance.accepted = True
+        instance.save()
         order = Order.objects.get(id=self.kwargs['order_id'])
         order.process = Order.STL_DONE
         order.save()
@@ -205,6 +216,16 @@ class STLReview(UpdateView):
         context = super(STLReview, self).get_context_data()
         context['evaluation'] = self.model.objects.get(stl_order_task=self.kwargs['task_id'])
         return context
+
+
+class STLDetailView(DetailView):
+    template_name = 'owners/stl_detail_view.html'
+    model = OrderTask
+    context_object_name = 'order'
+
+    # def get_context_data(self, **kwargs):
+    #     import pdb;pdb.set_trace()
+    #     pass
 
 
 class TLTaskView(ListView):
