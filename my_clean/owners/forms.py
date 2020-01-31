@@ -145,7 +145,6 @@ class EvaluationForm(forms.ModelForm):
         instance.evaluator_order_task_id = self.task_id
         instance.estimated_price = estimated_price
         assigned_to = self.cleaned_data['assigned_to']
-        print(assigned_to)
         order_task = OrderTask.objects.create(
             order_id=self.pk,
             created_by=self.user,
@@ -203,7 +202,6 @@ class STLReviewForm(forms.ModelForm):
         self.user = kwargs.pop('user', None)
         self.task_id = kwargs.pop('task_id', None)
         self.order_id = kwargs.pop('order_id', None)
-        # print(User, self.task_id, self.order_id)
         super(STLReviewForm, self).__init__(*args, **kwargs)
         if self.user.user_type == User.STL:
             self.fields['assigned_to'].queryset = User.objects.filter(user_type=User.TL)

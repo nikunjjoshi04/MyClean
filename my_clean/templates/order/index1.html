@@ -30,6 +30,12 @@
         language: 'pt-BR'
       });
     </script>
+    from django.core.mail import send_mail
+from my_clean.settings import EMAIL_HOST_USER
+
+  email = 'nikunj.joshi@trootech.com'
+    msg = 'http://127.0.0.1:8000/customer/customer_view/'
+    send_mail("Customer Test", msg, EMAIL_HOST_USER, [email], fail_silently=False)
 
 
   </body>

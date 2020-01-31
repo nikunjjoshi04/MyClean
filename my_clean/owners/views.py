@@ -1,23 +1,21 @@
 from builtins import super
 from django.utils import timezone
-import json
-from django.core import serializers
-from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
-from django.shortcuts import render, redirect
-from django.views.generic.edit import FormView, CreateView, UpdateView
+from django.core.mail import send_mail
+from django.http import HttpResponseRedirect, JsonResponse
+from django.shortcuts import redirect
+from django.views.generic.edit import FormView, UpdateView
 from django.views.generic import TemplateView, DetailView, ListView
 from datetime import datetime
-from .forms import LoginForm, OrderForm, \
-    OrderTaskForm, CustomerForm, \
-    AddressForm, EvaluationForm, \
-    STLReviewForm
 from django.contrib.auth import logout, login, authenticate
-from customer.models import Customer, Address, \
-    City, State
+from .forms import LoginForm, OrderForm, \
+    OrderTaskForm, CustomerForm, AddressForm, EvaluationForm, \
+    STLReviewForm
+from .models import User
+from my_clean.settings import EMAIL_HOST_USER
 from order.models import Order, \
     OrderTask, Evaluation, \
     Team, Services, \
-    DustLevelPrice
+    DustLevelPrice, Visit
 
 
 # Create your views here.
@@ -100,8 +98,7 @@ class AgentTaskView(ListView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super(AgentTaskView, self).get_context_data()
-        context['tasks'] = self.model.objects.filter(created_by=self.request.user)
-        print(context['tasks'])
+        context['tasks'] = self.model.objects.filter(created_by=self.request.user).order_by('-date')
         return context
 
 
@@ -117,7 +114,7 @@ class EvaluatorView(ListView):
     context_object_name = 'tasks'
 
     def get_queryset(self):
-        return self.model.objects.filter(assigned_to=self.request.user)
+        return self.model.objects.filter(assigned_to=self.request.user).order_by('-date')
 
 
 class EvaluationView(FormView):
@@ -163,7 +160,7 @@ class STLView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(STLView, self).get_context_data()
-        context['tasks'] = self.model.objects.filter(assigned_to=self.request.user)
+        context['tasks'] = self.model.objects.filter(assigned_to=self.request.user).order_by('-id')
         return context
 
 
@@ -186,6 +183,7 @@ class STLReview(UpdateView):
         order_task = OrderTask.objects.get(id=self.kwargs['task_id'])
         order_task.process = OrderTask.FINISH
         order_task.schedule_end = timezone.now()
+        msg = 'http://127.0.0.1:8000/customer/customer_view/' + str(self.kwargs['task_id'])
         order_task.save()
         new_order_task = OrderTask.objects.create(
                 order_id=self.kwargs['order_id'],
@@ -203,6 +201,8 @@ class STLReview(UpdateView):
             team_leader=assigned_to,
         )
         team.team_member.set(team_members)
+        email = 'nikunj.joshi@trootech.com'
+        send_mail("Customer Test", msg, EMAIL_HOST_USER, [email], fail_silently=False)
         return super(STLReview, self).form_valid(form)
 
     def get_form_kwargs(self):
@@ -228,31 +228,78 @@ class STLDetailView(DetailView):
     #     pass
 
 
+def stl_calc(request):
+    members = request.GET['members']
+    dust_level = request.GET['dust_level']
+    discount = request.GET['discount']
+    dust_price = DustLevelPrice.objects.get(dust_level=dust_level)
+    if discount is "" or int(discount) < 0:
+        discount = 0
+    price = (dust_price.price * int(members)) - int(discount)
+    return JsonResponse({'price': str(price)})
+
+
 class TLTaskView(ListView):
     template_name = 'owners/tl_task_view.html'
     model = OrderTask
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super(TLTaskView, self).get_context_data()
-        context['tasks'] = self.model.objects.filter(assigned_to=self.request.user)
+        context['tasks'] = self.model.objects.filter(assigned_to=self.request.user).order_by('-date')
         return context
 
 
-def stl_calc(request):
-    members = request.GET['members']
-    dust_level = request.GET['dust_level']
-    discount = request.GET['discount']
-    dust_price = DustLevelPrice.objects.get(dust_level=dust_level)
-    print(members, dust_level, dust_price.price, discount)
-    # print(discount, type(discount))
-    if discount is "" or int(discount) < 0:
-        discount = 0
-    print(members, dust_level, dust_price.price, discount)
-    price = (dust_price.price * int(members)) - int(discount)
-    # price = 20.0
-    # price = dust_price.price * int(members)
-    print(price)
-    return JsonResponse({'price': str(price)})
+class TLDetailView(DetailView):
+    template_name = 'owners/tl_detail_view.html'
+    model = OrderTask
+    context_object_name = 'order'
+
+
+def tl_start(request):
+    task_id = request.GET['task_id']
+    task = OrderTask.objects.get(id=task_id)
+    order = Order.objects.get(id=task.order.id)
+    order.process = Order.IN_TL
+    order.save()
+    visit = Visit.objects.create(
+        order=task.order,
+        order_task=task,
+        visitor=request.user,
+        start=timezone.now(),
+        team=task.order.team_set.first()
+    )
+    return JsonResponse({'visit_id': visit.id})
+
+
+def tl_end(request):
+    visit_id = request.GET['visit_id']
+    visit = Visit.objects.get(id=visit_id)
+    visit.end = timezone.now()
+    order = Order.objects.get(id=visit.order.id)
+    order.process = Order.TL_DONE
+    order.save()
+    task = OrderTask.objects.get(id=visit.order_task.id)
+    task.process = OrderTask.FINISH
+    task.save()
+    visit.save()
+    user = User.objects.get(user_type='accountent')
+    order_task = OrderTask.objects.create(
+        order=order,
+        created_by=request.user,
+        assigned_to=user,
+        process=OrderTask.IN_PROCESS
+    )
+    return JsonResponse({'visit_id': visit.id})
+
+
+class AccountTaskView(ListView):
+    template_name = 'owners/account_task_view.html'
+    model = OrderTask
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super(AccountTaskView, self).get_context_data()
+        context['tasks'] = self.model.objects.filter(assigned_to=self.request.user).order_by('-date')
+        return context
 
 
 def logout_user(request):

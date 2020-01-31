@@ -1,0 +1,179 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Modern Business - Start Bootstrap Template</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+
+    <!--   Custom styles for this template-->
+    <link href="{% static 'css/modern-business.css' %}" rel="stylesheet">
+    <link href="{% static 'css/font-awesome.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/bootstrap-datetimepicker.css' %}" rel="stylesheet">
+
+
+
+</head>
+
+<body>
+
+<!-- Navigation -->
+<nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container">
+        <a class="navbar-brand" href="#">My Clean Services</a>
+        <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse"
+                data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false"
+                aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="#">About</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Services</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Contact</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Page Content -->
+<div class="container">
+    <hr>
+
+
+    <div class="breadcrumb mb-4">
+        <li class="breadcrumb-item pt-1 text-center">Order Detail</li>
+    </div>
+    <div class="container p-3 my-3 border pl-5">
+
+        <h5 class="text-center text-light py-2 px-2 bg-dark">{{ order.order.unique_id }} - {{ order.order.process }} - {{ order.order.service }}</h5>
+        <div class="row mt-5">
+            <div class="col-md-6">
+                <p>Customer Name:<br><br> {{ order.order.customer.first_name.capitalize }}  {{ order.order.customer.last_name.capitalize }}</p>
+            </div>
+            <div class="col-md-6">
+                <p>City:<br><br> {{ order.order.address.city.city_name.capitalize }}  {{ order.order.address.city.state.state_name.capitalize }}</p>
+            </div>
+        </div>
+        <div class="row mt-5">
+            <div class="col-md-6">
+                <p>Contact:<br><br> {{ order.order.customer.mobile_no }} <br> {{ order.order.customer.email }}</p>
+            </div>
+            <div class="col-md-6">
+                <p>Address:<br><br> {{ order.order.address.street }} <br> {{ order.order.address.building }}</p>
+            </div>
+        </div>
+        {% for evaluation in order.order.order_pk.all %}
+        <div class="row mt-5">
+            <div class="col-md-3">
+                <p>Booked By Agent:<br><br>  {{ evaluation.evaluator_order_task.created_by.get_full_name }}</p>
+            </div>
+            <div class="col-md-3">
+                <p>Booked Time:<br><br> {{ evaluation.evaluator_order_task.order.date.date }} <br> {{ evaluation.evaluator_order_task.date.time }}</p>
+            </div>
+            <div class="col-md-3">
+                <p>Assigned Evaluator:<br><br>  {{ evaluation.evaluator_order_task.assigned_to.get_full_name }}</p>
+            </div>
+            <div class="col-md-3">
+                <p>Evaluation Time:<br><br> {{ evaluation.evaluator_order_task.schedule_on.date }} <br> {{ evaluation.evaluator_order_task.schedule_on.time }}</p>
+            </div>
+        </div>
+        <div class="row mt-5">
+            <div class="col-md-3">
+                <p>Dust Level Price:<br><br>  {{ evaluation.dust_level }} - {{ evaluation.dust_level.price }}</p>
+            </div>
+            <div class="col-md-3">
+                <p>Team Members:<br><br> {{ evaluation.team_members }}</p>
+            </div>
+            {% if evaluation.discount != 0 %}
+            <div class="col-md-3">
+                <p>Estimated Price:<br><br> {{ evaluation.estimated_price |add:evaluation.discount }}</p>
+            </div>
+            {% else %}
+            <div class="col-md-3">
+                <p>Final Estimated Price:<br><br> {{ evaluation.estimated_price }}</p>
+            </div>
+            {% endif %}
+            <div class="col-md-3">
+                <p>Evaluation Complete:<br><br> {{ evaluation.evaluation_date.date }} <br> {{ evaluation.evaluation_date.time }}</p>
+            </div>
+        </div>
+    {% if evaluation.discount != 0 %}
+        <div class="row mt-5">
+            <div class="col-md-3">
+                <p>Senior Team Leader:<br><br> {{ evaluation.assigned_to.get_full_name }}</p>
+            </div>
+            <div class="col-md-3">
+                <p>Discount:<br><br> {{ evaluation.discount }}</p>
+            </div>
+            <div class="col-md-3">
+                <p>Final Estimated Price:<br><br> {{ evaluation.estimated_price }}</p>
+            </div>
+            <div class="col-md-3">
+                <p>Cleaning Time:<br><br> {{ evaluation.expected_time.date }} <br> {{ evaluation.expected_time.time }}</p>
+            </div>
+        </div>
+        {% else %}
+        <div class="row mt-5">
+            <div class="col-md-6">
+                <p>Senior Team Leader:<br><br> {{ evaluation.assigned_to.get_full_name }}</p>
+            </div>
+            <div class="col-md-6">
+                <p>Cleaning Time:<br><br> {{ evaluation.expected_time.date }} <br> {{ evaluation.expected_time.time }}</p>
+            </div>
+        </div>
+    {% endif %}
+        <p class="mt-5">Order Description: </p>
+        <div class="container p-3 my-3 border pl-5">
+            <h6>{{ evaluation.order.description }}</h6>
+        </div>
+        <a class="btn btn-primary btn-block my-5" href="{% url 'order:home' %}">Accept</a>
+    </div>
+    {% endfor %}
+
+
+</div>
+</div>
+
+<!-- /.container -->
+
+<!-- Footer -->
+<footer class="py-5 bg-dark mt-5">
+    <div class="container">
+        <p class="m-0 text-center text-white">Copyright &copy; Your Website 2019</p>
+    </div>
+    <!-- /.container -->
+</footer>
+
+<!-- Bootstrap core JavaScript And Css-->
+<script src="{% static 'js/jquery.min.js' %}"></script>
+<!--<script-->
+<!--  src="https://code.jquery.com/jquery-3.4.1.min.js"-->
+<!--  integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="-->
+<!--  crossorigin="anonymous"></script>-->
+<script src="{% static 'js/moment.js' %}"></script>
+<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'js/bootstrap.min.js' %}"></script>
+<!--<script src="{% static 'js/jquery.slim.min.js' %}"></script>-->
+<!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>-->
+<script src="{% static 'js/bootstrap-datetimepicker.min.js' %}"></script>
+<script src="{% static 'js/contact_me.js' %}"></script>
+<script src="{% static 'js/jqBootstrapValidation.js' %}"></script>
+
+</body>
+
+</html>

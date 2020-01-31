@@ -5,7 +5,8 @@ from .views import \
     STLView, TLTaskView, EvaluationView, \
     STLReview, AgentTaskView, stl_calc, \
     AgentDetailView, EvaluatorDetailView, \
-    STLDetailView
+    STLDetailView, TLDetailView, tl_start, \
+    tl_end, AccountTaskView
 
 app_name = 'owners'
 urlpatterns = [
@@ -22,4 +23,8 @@ urlpatterns = [
     path('stl_calc/', stl_calc, name='stl_calc'),
     path('stl_detail_view/<int:pk>/', STLDetailView.as_view(), name='stl_detail_view'),
     path('tl_task_view/', TLTaskView.as_view(), name='tl_task_view'),
+    path('tl_detail_view/<int:pk>/', TLDetailView.as_view(), name='tl_detail_view'),
+    path('tl_start/', tl_start, name='tl_start'),
+    path('tl_end/', tl_end, name='tl_end'),
+    path('account_task_view/', AccountTaskView.as_view(), name='account_task_view'),
 ]

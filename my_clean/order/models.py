@@ -28,8 +28,8 @@ class Order(models.Model):
     EVALUATION_DONE = 'evaluation_done'
     IN_STL = 'in_stl'
     STL_DONE = 'stl_done'
-    IN_TL = 'in_tl'
-    TL_DONE = 'tl_done'
+    IN_TL = 'in_cleaning'
+    TL_DONE = 'cleaning_done'
     IN_PAYMENT = 'in_payment'
     ORDER_DONE = 'order_done'
     Process_Flags = [
@@ -37,8 +37,8 @@ class Order(models.Model):
         (EVALUATION_DONE, 'Evaluation Done'),
         (IN_STL, 'In STL Observation'),
         (STL_DONE, 'STL Process Done'),
-        (IN_TL, 'In TL Observation'),
-        (TL_DONE, 'TL Process Done'),
+        (IN_TL, 'In Cleaning Process'),
+        (TL_DONE, 'Cleaning Process Done'),
         (IN_PAYMENT, 'In Payment Process'),
         (ORDER_DONE, 'Order Done'),
     ]
@@ -103,3 +103,15 @@ class Team(models.Model):
 
     def __str__(self):
         return self.team_id
+
+
+class Visit(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    order_task = models.ForeignKey(OrderTask, on_delete=models.CASCADE)
+    visitor = models.ForeignKey(User, on_delete=models.CASCADE)
+    start = models.DateTimeField(default=timezone.now())
+    end = models.DateTimeField(null=True)
+    team = models.ForeignKey(Team, on_delete=models.CASCADE, null=True)
+
+    def __str__(self):
+        return '{} - {}'.format(self.order, self.visitor)

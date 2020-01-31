@@ -34,24 +34,8 @@
         </tr>
         {% endif %}
       {% endfor %}
-    </tbody>
-  </table>
-<table class="table mb-5">
-    <thead class="thead-light">
-      <tr>
-        <th>Task Id</th>
-        <th>Order Id</th>
-        <th>Order Date</th>
-        <th>Customer Info</th>
-        <th>Customer Address</th>
-        <th>Created By</th>
-        <th>Evaluation Time</th>
-        <th>Process</th>
-        <th>Detail</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for task in tasks %}
+
+    {% for task in tasks %}
         {% if task.process == "finish" %}
           <tr>
             <td>{{ task.id }}</td>
@@ -67,6 +51,5 @@
         {% endif %}
       {% endfor %}
     </tbody>
-</table>
-
+  </table>
 {% endblock %}

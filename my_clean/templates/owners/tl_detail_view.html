@@ -3,12 +3,23 @@
 {% block content %}
 
 <div class="breadcrumb mb-4">
-    <li class="breadcrumb-item pt-1 text-center"><a href="{% url 'owners:stl_view' %}">Tasks List</a></li>
+    <li class="breadcrumb-item pt-1 text-center"><a href="{% url 'owners:tl_task_view' %}">Tasks List</a></li>
     <li class="breadcrumb-item pt-1 text-center">Order Order Detail</li>
 </div>
+
 <div class="container p-3 my-3 border pl-5">
 
     <h5 class="text-center text-light py-2 px-2 bg-dark">{{ order.order.unique_id }} - {{ order.order.process }} - {{ order.order.service }}</h5>
+    {% if order.process != "finish" %}
+    <div class="row my-5">
+        <div class="col-md-6">
+            <button id="start" task-id="{{ order.id }}" class="btn btn-block btn-primary">Start</button>
+        </div>
+        <div class="col-md-6">
+            <button id="end" class="btn btn-block btn-primary" disabled>End</button>
+        </div>
+    </div>
+    {% endif %}
     <div class="row mt-5">
         <div class="col-md-6">
             <p>Customer Name:<br><br> {{ order.order.customer.first_name.capitalize }}  {{ order.order.customer.last_name.capitalize }}</p>
@@ -85,6 +96,30 @@
         </div>
     </div>
 {% endif %}
+    {% if order.process == "finish" %}
+    <div class="row mt-5">
+        <div class="col-md-6">
+            <p>
+                Cleaning Service Start:
+                <br>
+                <br>
+                {{ evaluation.order.visit_set.first.start.date }}
+                <br>
+                {{ evaluation.order.visit_set.first.start.time }}
+            </p>
+        </div>
+        <div class="col-md-6">
+            <p>
+                Cleaning Service End:
+                <br>
+                <br>
+                {{ evaluation.order.visit_set.first.end.date }}
+                <br>
+                {{ evaluation.order.visit_set.first.end.time }}
+            </p>
+        </div>
+    </div>
+    {% endif %}
     <p class="mt-5">Order Description: </p>
     <div class="container p-3 my-3 border pl-5">
         <h6>{{ evaluation.order.description }}</h6>
@@ -93,9 +128,8 @@
     <div class="container p-3 my-3 border pl-5">
         <h6>{{ evaluation.description }}</h6>
     </div>
+    {% endfor %}
 </div>
-{% endfor %}
-
 
 <!--<div class="col-lg-8 mb-4">-->
 <!--    &lt;!&ndash; Embedded Google Map &ndash;&gt;-->
@@ -104,4 +138,42 @@
 <!--    </iframe>-->
 <!--</div>-->
 
+{% endblock %}
+
+{% block js %}
+<script>
+    $(document).ready(function(){
+         $('#start').click(function(){
+            $(this).attr("class", "btn btn-block  btn-outline-danger");
+            $(this).prop('disabled', true);
+            $('#end').prop('disabled', false);
+            var task_id = $(this).attr('task-id');
+            var url = '{% url 'owners:tl_start' %}';
+            $.ajax({
+                url:url,
+                data:{
+                    task_id:task_id
+                },
+                success:function(data){
+                    $('#end').attr('visit_id', data.visit_id);
+                }
+            });
+         });
+
+         $('#end').click(function(){
+            $(this).attr("class", "btn btn-block  btn-outline-danger");
+            $(this).prop('disabled', true);
+            var visit_id = $(this).attr('visit_id');
+            var url = '{% url 'owners:tl_end' %}';
+             $.ajax({
+                url:url,
+                data:{
+                    visit_id:visit_id
+                },
+                success:function(data){
+                }
+            });
+         });
+    });
+</script>
 {% endblock %}
