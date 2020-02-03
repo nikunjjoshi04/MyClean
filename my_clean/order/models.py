@@ -115,3 +115,14 @@ class Visit(models.Model):
 
     def __str__(self):
         return '{} - {}'.format(self.order, self.visitor)
+
+
+class Accounts(models.Model):
+
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    order_task = models.ForeignKey(OrderTask, on_delete=models.CASCADE)
+    date = models.DateTimeField(default=timezone.now())
+    amount = models.FloatField(null=True)
+    check_no = models.IntegerField(null=True)
+    check_date = models.DateTimeField(null=True)
+    bank_name = models.CharField(max_length=150, null=True)

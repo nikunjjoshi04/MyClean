@@ -1,0 +1,229 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="breadcrumb mb-4">
+    <li class="breadcrumb-item pt-1 text-center"><a href="{% url 'owners:account_task_view' %}">Tasks List</a></li>
+    <li class="breadcrumb-item pt-1 text-center">Order Order Detail</li>
+</div>
+
+<div class="container p-3 my-3 border pl-5">
+
+    <h5 class="text-center text-light py-2 px-2 bg-dark">{{ order.order.unique_id }} - {{ order.order.process }} - {{ order.order.service }}</h5>
+    <div class="row mt-5">
+        <div class="col-md-6">
+            <p>Customer Name:<br><br> {{ order.order.customer.first_name.capitalize }}  {{ order.order.customer.last_name.capitalize }}</p>
+        </div>
+        <div class="col-md-6">
+            <p>City:<br><br> {{ order.order.address.city.city_name.capitalize }}  {{ order.order.address.city.state.state_name.capitalize }}</p>
+        </div>
+    </div>
+    <div class="row mt-5">
+        <div class="col-md-6">
+            <p>Contact:<br><br> {{ order.order.customer.mobile_no }} <br> {{ order.order.customer.email }}</p>
+        </div>
+        <div class="col-md-6">
+            <p>Address:<br><br> {{ order.order.address.street }} <br> {{ order.order.address.building }}</p>
+        </div>
+    </div>
+    {% for evaluation in order.order.order_pk.all %}
+    <div class="row mt-5">
+        <div class="col-md-3">
+            <p>Booked By Agent:<br><br>  {{ evaluation.evaluator_order_task.created_by.get_full_name }}</p>
+        </div>
+        <div class="col-md-3">
+            <p>Booked Time:<br><br> {{ evaluation.evaluator_order_task.order.date.date }} <br> {{ evaluation.evaluator_order_task.date.time }}</p>
+        </div>
+        <div class="col-md-3">
+            <p>Assigned Evaluator:<br><br>  {{ evaluation.evaluator_order_task.assigned_to.get_full_name }}</p>
+        </div>
+        <div class="col-md-3">
+            <p>Evaluation Time:<br><br> {{ evaluation.evaluator_order_task.schedule_on.date }} <br> {{ evaluation.evaluator_order_task.schedule_on.time }}</p>
+        </div>
+    </div>
+    <div class="row mt-5">
+        <div class="col-md-3">
+            <p>Dust Level Price:<br><br>  {{ evaluation.dust_level }} - {{ evaluation.dust_level.price }}</p>
+        </div>
+        <div class="col-md-3">
+            <p>Team Members:<br><br> {{ evaluation.team_members }}</p>
+        </div>
+        {% if evaluation.discount != 0 %}
+        <div class="col-md-3">
+            <p>Estimated Price:<br><br> {{ evaluation.estimated_price |add:evaluation.discount }}</p>
+        </div>
+        {% else %}
+        <div class="col-md-3">
+            <p>Final Estimated Price:<br><br> {{ evaluation.estimated_price }}</p>
+        </div>
+        {% endif %}
+        <div class="col-md-3">
+            <p>Evaluation Complete:<br><br> {{ evaluation.evaluation_date.date }} <br> {{ evaluation.evaluation_date.time }}</p>
+        </div>
+    </div>
+{% if evaluation.discount != 0 %}
+    <div class="row mt-5">
+        <div class="col-md-3">
+            <p>Senior Team Leader:<br><br> {{ evaluation.assigned_to.get_full_name }}</p>
+        </div>
+        <div class="col-md-3">
+            <p>Discount:<br><br> {{ evaluation.discount }}</p>
+        </div>
+        <div class="col-md-3">
+            <p>Final Estimated Price:<br><br> {{ evaluation.estimated_price }}</p>
+        </div>
+        <div class="col-md-3">
+            <p>Cleaning Time:<br><br> {{ evaluation.expected_time.date }} <br> {{ evaluation.expected_time.time }}</p>
+        </div>
+    </div>
+    {% else %}
+    <div class="row mt-5">
+        <div class="col-md-6">
+            <p>Senior Team Leader:<br><br> {{ evaluation.assigned_to.get_full_name }}</p>
+        </div>
+        <div class="col-md-6">
+            <p>Cleaning Time:<br><br> {{ evaluation.expected_time.date }} <br> {{ evaluation.expected_time.time }}</p>
+        </div>
+    </div>
+{% endif %}
+    <div class="row mt-5">
+        <div class="col-md-6">
+            <p>
+                Cleaning Service Start:
+                <br>
+                <br>
+                {{ evaluation.order.visit_set.first.start.date }}
+                <br>
+                {{ evaluation.order.visit_set.first.start.time }}
+            </p>
+        </div>
+        <div class="col-md-6">
+            <p>
+                Cleaning Service End:
+                <br>
+                <br>
+                {{ evaluation.order.visit_set.first.end.date }}
+                <br>
+                {{ evaluation.order.visit_set.first.end.time }}
+            </p>
+        </div>
+    </div>
+    {% endfor %}
+    <div class="dropdown">
+      <button class="btn btn-primary dropdown-toggle btn-block" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        Payment Options
+      </button>
+      <div class="dropdown-menu" style="width:100%" aria-labelledby="dropdownMenu2">
+          <button class="dropdown-item" id="cash" task-id="{{ order.id }}" type="button" data-toggle="modal" data-target="#cash_model">
+              By Cash
+          </button>
+
+          <button class="dropdown-item" id="check" task-id="{{ order.id }}" type="button" data-toggle="modal" data-target="#check_model">
+              By Check
+          </button>
+
+        <button class="dropdown-item" type="button">Another action</button>
+        <button class="dropdown-item" type="button">Something else here</button>
+      </div>
+    </div>
+</div>
+
+<!--<div class="col-lg-8 mb-4">-->
+<!--    &lt;!&ndash; Embedded Google Map &ndash;&gt;-->
+<!--    <iframe width="100%" height="400px" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"-->
+<!--            src="http://maps.google.com/maps?hl=en&amp;ie=UTF8&amp;ll=23.022444, 72.509648&amp;spn=56.506174,79.013672&amp;t=m&amp;z=4&amp;output=embed">-->
+<!--    </iframe>-->
+<!--</div>-->
+
+<!-- Check Modal -->
+<div class="modal fade" id="check_model" tabindex="-1" role="dialog" aria-labelledby="check_model_title" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="check_model_title">Modal title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div id="check_body" class="modal-body">
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--Cash Modal -->
+<div class="modal fade" id="cash_model" tabindex="-1" role="dialog" aria-labelledby="cash_model_title" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="cash_model_title">Modal title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div id="cash_body" class="modal-body">
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block js %}
+
+<script>
+    $(document).ready(function(){
+        $("#check").click(function(){
+        var url = '{% url 'owners:check_view' %}';
+        var task_id = $(this).attr('task-id');
+            $.ajax({
+                type: "GET",
+                url: url,
+                data:{
+                    task_id: task_id
+                },
+                success:function(data){
+                    $("#check_body").html(data.check_form);
+                }
+            });
+        });
+
+        $("#cash").click(function(){
+        var url = '{% url 'owners:cash_view' %}';
+        var task_id = $(this).attr('task-id');
+            $.ajax({
+                type: "GET",
+                url: url,
+                data:{
+                    task_id: task_id
+                },
+                success:function(data){
+                    $("#cash_body").html(data.cash_form);
+                },
+                error: function (data){
+                    alert("wel");
+                    console.info(data);
+                }
+
+            });
+        });
+    });
+</script>
+<script>
+    $(document).ready(function(){
+        $("#cash_model").on('submit', function(){
+            alert(" 2ggg ");
+        });
+    });
+</script>
+
+
+{% endblock %}

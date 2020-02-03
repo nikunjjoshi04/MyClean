@@ -9,8 +9,8 @@ from customer.models import Customer, Address, \
     City, State
 from order.models import Order, \
     OrderTask, Evaluation, \
-    Team, Services, \
-    DustLevelPrice
+    Team, Services, DustLevelPrice, \
+    Accounts
 
 
 class LoginForm(forms.Form):
@@ -207,3 +207,58 @@ class STLReviewForm(forms.ModelForm):
             self.fields['assigned_to'].queryset = User.objects.filter(user_type=User.TL)
         else:
             self.fields['assigned_to'].queryset = User.objects.all()
+
+
+class CheckForm(forms.ModelForm):
+    check_no = forms.IntegerField(
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control py-2'
+            }
+        )
+    )
+    check_date = forms.DateField(
+        widget=forms.DateInput(
+            attrs={
+                'class': 'form-control py-2'
+            }
+        )
+    )
+    bank_name = forms.CharField(
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control py-2'
+            }
+        )
+    )
+
+    class Meta:
+        model = Accounts
+        fields = ['check_no', 'check_date', 'bank_name']
+
+
+class CashForm(forms.ModelForm):
+    amount = forms.FloatField(
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control py-2'
+            }
+        )
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.task_id = kwargs.pop('task_id', None)
+        super(CashForm, self).__init__(*args, **kwargs)
+
+    class Meta:
+        model = Accounts
+        fields = ['amount']
+
+    def clean_amount(self):
+        amount = self.cleaned_data['amount']
+        task = OrderTask.objects.get(id=self.task_id)
+        evaluation = task.order.order_pk.first()
+        if amount < evaluation.estimated_price:
+            raise forms.ValidationError("Amount Is Not Match")
+        return amount
+

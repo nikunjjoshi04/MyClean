@@ -48,7 +48,7 @@
         </td>
         {% endfor %}
         <td>{{ task.process }}</td>
-        <td><a href="{% url 'owners:tl_detail_view' task.id %}">Detail</a></td>
+        <td><a href="{% url 'owners:account_detail_view' task.id %}">Detail</a></td>
     </tr>
     {% endif %}
     {% endfor %}
@@ -82,7 +82,7 @@
         </td>
         {% endfor %}
         <td>{{ task.process }}</td>
-        <td><a href="{% url 'owners:tl_detail_view' task.id %}">Detail</a></td>
+        <td><a href="{% url 'owners:account_detail_view' task.id %}">Detail</a></td>
     </tr>
     {% endif %}
     {% endfor %}

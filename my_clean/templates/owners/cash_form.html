@@ -1,0 +1,11 @@
+<form action="{% url 'owners:cash_view' %}" method="POST">
+    {% csrf_token %}
+    <div class="form-group">
+        {{ cash_form.amount.errors }}
+        <label class="small mb-1" for="{{ cash_form.amount.id_for_label }}">
+            {{ cash_form.amount.label_tag }}</label>
+        {{ cash_form.amount }}
+    </div>
+    <button id="cash_form_submit" class="btn btn-primary btn-block" type="submit">Submit Payment</button>
+</form>
+
