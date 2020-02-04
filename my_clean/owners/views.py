@@ -1,8 +1,6 @@
 from builtins import super
 from django.utils import timezone
-from django.core import serializers
 from django.core.mail import send_mail
-from django.template.loader import render_to_string
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect
 from django.views.generic.edit import FormView, UpdateView
@@ -11,9 +9,10 @@ from datetime import datetime
 from django.contrib.auth import logout, login, authenticate
 from .forms import LoginForm, OrderForm, \
     OrderTaskForm, CustomerForm, AddressForm, EvaluationForm, \
-    STLReviewForm, CheckForm, CashForm
+    STLReviewForm, PaymentForm
 from .models import User
 from my_clean.settings import EMAIL_HOST_USER
+from owners.util import URL
 from order.models import Order, \
     OrderTask, Evaluation, \
     Team, Services, \
@@ -34,6 +33,10 @@ class LoginView(FormView):
         user = authenticate(username=username, password=password)
         if user:
             login(self.request, user)
+            time = timezone.now()
+            data = URL.encryption(self, pk=88, time=time)
+            print("login :-  ", data)
+            self.request.session['data'] = data
 
         if user.user_type == "agent":
             self.success_url = '/owners/agent_view'
@@ -145,7 +148,7 @@ class EvaluationView(FormView):
         return kwargs
 
     def form_invalid(self, form):
-        print(form.errors)
+        # print(form.errors)
         return super(EvaluationView, self).form_invalid(form)
 
 
@@ -306,74 +309,24 @@ class AccountTaskView(ListView):
         return context
 
 
-class AccountDetailView(DetailView):
+class AccountDetailView(FormView):
     template_name = 'owners/account_detail_view.html'
-    model = OrderTask
-    context_object_name = 'order'
-
-
-class CheckView(CreateView):
-    form_class = CheckForm
-    template_name = 'owners/check_form.html'
+    form_class = PaymentForm
     success_url = '/owners/account_task_view'
-    check_info = dict()
 
-    def get(self, request, *args, **kwargs):
-        request.session['task_id'] = request.GET['task_id']
-        self.check_info['check_form'] = render_to_string(self.template_name, {'check_form': self.form_class}, request)
-        return JsonResponse(self.check_info)
+    def get_context_data(self, **kwargs):
+        context = super(AccountDetailView, self).get_context_data()
+        context['order'] = OrderTask.objects.get(id=self.kwargs['pk'])
+        return context
 
     def form_valid(self, form):
-        task_id = self.request.session.pop('task_id', None)
-        task_id = OrderTask.objects.get(id=task_id)
-        check_form = form.save(commit=False)
-        check_form.order = task_id.order
-        check_form.order_task = task_id
-        task_id.process = OrderTask.FINISH
-        task_id.order.process = Order.ORDER_DONE
-        task_id.order.save()
-        task_id.save()
-        check_form.save()
-        return super(CheckView, self).form_valid(form)
-
-
-class CashView(CreateView):
-    form_class = CashForm
-    template_name = 'owners/cash_form.html'
-    success_url = '/owners/account_task_view'
-    cash_info = dict()
-
-    def get(self, request, *args, **kwargs):
-        request.session['task_id'] = request.GET['task_id']
-        self.cash_info['form_valid'] = True
-        self.cash_info['cash_form'] = render_to_string(self.template_name, {'cash_form': self.form_class}, request)
-        return JsonResponse(self.cash_info)
-
-    def form_valid(self, form):
-        task_id = self.request.session.get('task_id')
-        task_id = OrderTask.objects.get(id=task_id)
-        cash_form = form.save(commit=False)
-        cash_form.order = task_id.order
-        cash_form.order_task = task_id
-        task_id.process = OrderTask.FINISH
-        task_id.order.process = Order.ORDER_DONE
-        task_id.order.save()
-        task_id.save()
-        cash_form.save()
-        return super(CashView, self).form_valid(form)
+        form.save()
+        return super(AccountDetailView, self).form_valid(form)
 
     def get_form_kwargs(self):
-        kwargs = super(CashView, self).get_form_kwargs()
-        kwargs['task_id'] = self.request.session.get('task_id')
+        kwargs = super(AccountDetailView, self).get_form_kwargs()
+        kwargs['task_id'] = self.kwargs['pk']
         return kwargs
-
-    def form_invalid(self, form):
-        print(form.errors)
-        self.cash_info = {
-            'form_valid': False,
-            'cash_form': render_to_string(self.template_name, {'cash_form': form}, self.request)
-        }
-        return JsonResponse(self.cash_info)
 
 
 def logout_user(request):

@@ -209,56 +209,66 @@ class STLReviewForm(forms.ModelForm):
             self.fields['assigned_to'].queryset = User.objects.all()
 
 
-class CheckForm(forms.ModelForm):
-    check_no = forms.IntegerField(
+class PaymentForm(forms.ModelForm):
+    amount = forms.IntegerField(
         widget=forms.TextInput(
             attrs={
                 'class': 'form-control py-2'
             }
-        )
+        ),
+        required=False
+    )
+    check_no = forms.IntegerField(
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control py-2',
+            }
+        ),
+        required=False
     )
     check_date = forms.DateField(
         widget=forms.DateInput(
             attrs={
                 'class': 'form-control py-2'
             }
-        )
+        ),
+        required=False
     )
     bank_name = forms.CharField(
         widget=forms.TextInput(
             attrs={
                 'class': 'form-control py-2'
             }
-        )
+        ),
+        required=False
     )
 
     class Meta:
         model = Accounts
-        fields = ['check_no', 'check_date', 'bank_name']
-
-
-class CashForm(forms.ModelForm):
-    amount = forms.FloatField(
-        widget=forms.TextInput(
-            attrs={
-                'class': 'form-control py-2'
-            }
-        )
-    )
+        fields = ['check_no', 'check_date', 'bank_name', 'amount']
 
     def __init__(self, *args, **kwargs):
         self.task_id = kwargs.pop('task_id', None)
-        super(CashForm, self).__init__(*args, **kwargs)
-
-    class Meta:
-        model = Accounts
-        fields = ['amount']
+        super(PaymentForm, self).__init__(*args, **kwargs)
 
     def clean_amount(self):
         amount = self.cleaned_data['amount']
         task = OrderTask.objects.get(id=self.task_id)
-        evaluation = task.order.order_pk.first()
-        if amount < evaluation.estimated_price:
-            raise forms.ValidationError("Amount Is Not Match")
+        price = task.order.order_pk.first().estimated_price
+        if amount is None:
+            return amount
+        elif amount < price:
+            raise forms.ValidationError("Amount Is Less Then Actual Price")
         return amount
 
+    def save(self, commit=True):
+        task = OrderTask.objects.get(id=self.task_id)
+        instance = super(PaymentForm, self).save(commit=False)
+        instance.order = task.order
+        instance.order_task = task
+        task.order.process = Order.ORDER_DONE
+        task.process = OrderTask.FINISH
+        task.order.save()
+        task.save()
+        instance.save()
+        return super(PaymentForm, self).save(commit=commit)

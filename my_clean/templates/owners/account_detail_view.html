@@ -109,23 +109,76 @@
         </div>
     </div>
     {% endfor %}
+    {% if order.process  != 'finish' %}
     <div class="dropdown">
       <button class="btn btn-primary dropdown-toggle btn-block" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         Payment Options
       </button>
       <div class="dropdown-menu" style="width:100%" aria-labelledby="dropdownMenu2">
-          <button class="dropdown-item" id="cash" task-id="{{ order.id }}" type="button" data-toggle="modal" data-target="#cash_model">
+
+          <button class="dropdown-item" id="cash"  type="button">
               By Cash
           </button>
-
-          <button class="dropdown-item" id="check" task-id="{{ order.id }}" type="button" data-toggle="modal" data-target="#check_model">
+          <button class="dropdown-item" id="check" type="button">
               By Check
           </button>
+          <button class="dropdown-item"  type="button">
+              By Check 2
+          </button>
+          <button class="dropdown-item"  type="button">
+              By Check 3
+          </button>
 
-        <button class="dropdown-item" type="button">Another action</button>
-        <button class="dropdown-item" type="button">Something else here</button>
       </div>
     </div>
+    {% endif %}
+    <main hidden>
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-11">
+                    <div class="card shadow-lg border-0 rounded-lg mt-5">
+                        <div class="card-header bg-light ">
+                            <h3 class="text-center font-weight-light my-2">
+                                Payment
+                            </h3>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST">
+                                {% csrf_token %}
+                                <div class="form-group" id="cash_form" hidden>
+                                    {{ form.amount.errors }}
+                                    <label class="small mb-1" for="{{ form.amount.id_for_label }}">
+                                        {{ form.amount.label_tag }}</label>
+                                    {{ form.amount }}
+                                </div>
+                                <div id="check_form" hidden>
+                                    <div class="form-group">
+                                        {{ form.check_no.errors }}
+                                        <label class="small mb-1" for="{{ form.check_no.id_for_label }}">
+                                            {{ form.check_no.label_tag }}</label>
+                                        {{ form.check_no }}
+                                    </div>
+                                    <div class="form-group">
+                                        {{ form.check_date.errors }}
+                                        <label class="small mb-1" for="{{ form.check_date.id_for_label }}">
+                                            {{ form.check_date.label_tag }}</label>
+                                        {{ form.check_date }}
+                                    </div>
+                                    <div class="form-group">
+                                        {{ form.bank_name.errors }}
+                                        <label class="small mb-1" for="{{ form.bank_name.id_for_label }}">
+                                            {{ form.bank_name.label_tag }}</label>
+                                        {{ form.bank_name }}
+                                    </div>
+                                </div>
+                                <button id="cash_form_submit" class="btn btn-primary btn-block" type="submit">Submit Payment</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
 </div>
 
 <!--<div class="col-lg-8 mb-4">-->
@@ -135,95 +188,45 @@
 <!--    </iframe>-->
 <!--</div>-->
 
-<!-- Check Modal -->
-<div class="modal fade" id="check_model" tabindex="-1" role="dialog" aria-labelledby="check_model_title" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="check_model_title">Modal title</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div id="check_body" class="modal-body">
-
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!--Cash Modal -->
-<div class="modal fade" id="cash_model" tabindex="-1" role="dialog" aria-labelledby="cash_model_title" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="cash_model_title">Modal title</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div id="cash_body" class="modal-body">
-
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-      </div>
-    </div>
-  </div>
-</div>
-
 {% endblock %}
 
 {% block js %}
-
 <script>
     $(document).ready(function(){
-        $("#check").click(function(){
-        var url = '{% url 'owners:check_view' %}';
-        var task_id = $(this).attr('task-id');
-            $.ajax({
-                type: "GET",
-                url: url,
-                data:{
-                    task_id: task_id
-                },
-                success:function(data){
-                    $("#check_body").html(data.check_form);
-                }
-            });
+        var cl = $('ul').hasClass("errorlist");
+        if(cl)
+        {
+            console.info('if'+cl);
+            $('main').prop('hidden', false);
+            $('#check_form').prop('hidden', true);
+            $('#cash_form').prop('hidden', false);
+            $('#id_amount').focus();
+
+        }
+
+        $('#cash').click(function(){
+            $('main').prop('hidden', false);
+            $('#check_form').prop('hidden', true);
+            $('#cash_form').prop('hidden', false);
+            $('#id_amount').prop('required', true);
+            $('#id_amount').focus();
         });
 
-        $("#cash").click(function(){
-        var url = '{% url 'owners:cash_view' %}';
-        var task_id = $(this).attr('task-id');
-            $.ajax({
-                type: "GET",
-                url: url,
-                data:{
-                    task_id: task_id
-                },
-                success:function(data){
-                    $("#cash_body").html(data.cash_form);
-                },
-                error: function (data){
-                    alert("wel");
-                    console.info(data);
-                }
-
-            });
+        $('#check').click(function(){
+            $('main').prop('hidden', false);
+            $('#cash_form').prop('hidden', true);
+            $('#check_form').prop('hidden', false);
+            $('#id_check_no').prop('required', true);
+            $('#id_check_date').prop('required', true);
+            $('#id_bank_name').prop('required', true);
         });
     });
 </script>
-<script>
-    $(document).ready(function(){
-        $("#cash_model").on('submit', function(){
-            alert(" 2ggg ");
-        });
+<script type="text/javascript">
+    $(function () {
+        $("#id_check_date").datetimepicker({
+        format: 'YYYY-MM-DD'
+    });
     });
 </script>
-
-
 {% endblock %}
