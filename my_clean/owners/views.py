@@ -33,10 +33,6 @@ class LoginView(FormView):
         user = authenticate(username=username, password=password)
         if user:
             login(self.request, user)
-            time = timezone.now()
-            data = URL.encryption(self, pk=88, time=time)
-            print("login :-  ", data)
-            self.request.session['data'] = data
 
         if user.user_type == "agent":
             self.success_url = '/owners/agent_view'
@@ -182,7 +178,7 @@ class STLReview(UpdateView):
         team_members = form.cleaned_data['team']
         schedule_on = form.cleaned_data['expected_time']
         instance = form.save(commit=False)
-        instance.accepted = True
+        instance.accepted = Evaluation.STL_ACCEPT
         instance.save()
         order = Order.objects.get(id=self.kwargs['order_id'])
         order.process = Order.STL_DONE
@@ -190,7 +186,9 @@ class STLReview(UpdateView):
         order_task = OrderTask.objects.get(id=self.kwargs['task_id'])
         order_task.process = OrderTask.FINISH
         order_task.schedule_end = timezone.now()
-        msg = 'http://127.0.0.1:8000/customer/customer_view/' + str(self.kwargs['task_id'])
+        data = URL.encryption(self, pk=order_task.id)
+        print("B_SEND :-  ", data)
+        msg = 'http://127.0.0.1:8000/customer/customer_view/' + str(data)
         order_task.save()
         new_order_task = OrderTask.objects.create(
                 order_id=self.kwargs['order_id'],

@@ -47,7 +47,7 @@ class Order(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     process = models.CharField(max_length=30, choices=Process_Flags)
     address = models.ForeignKey(Address, on_delete=models.CASCADE, related_name='address_pk')
-    date = models.DateTimeField(default=timezone.now())
+    date = models.DateTimeField(default=timezone.now)
     unique_id = models.CharField(max_length=30)
     description = models.TextField(null=True)
 
@@ -66,7 +66,7 @@ class OrderTask(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created')
     assigned_to = models.ForeignKey(User, on_delete=models.CASCADE, related_name='assigned')
     process = models.CharField(max_length=30, choices=Process_Flags)
-    date = models.DateTimeField(default=timezone.now())
+    date = models.DateTimeField(default=timezone.now)
     schedule_on = models.DateTimeField(null=True)
     schedule_end = models.DateTimeField(null=True)
     message = models.CharField(max_length=200, null=True)
@@ -76,6 +76,14 @@ class OrderTask(models.Model):
 
 
 class Evaluation(models.Model):
+    CREATED = 'created'
+    STL_ACCEPT = 'stl_accept'
+    CLIENT_ACCEPT = 'client_accept'
+    ACCEPT_FLAGS = [
+        (CREATED, 'created'),
+        (STL_ACCEPT, 'stl_accept'),
+        (CLIENT_ACCEPT, 'client_accept'),
+    ]
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_pk')
     evaluator_order_task = models.ForeignKey(OrderTask, on_delete=models.CASCADE, related_name="evaluator_order_task")
     stl_order_task = models.ForeignKey(OrderTask, on_delete=models.CASCADE, related_name='stl_order_task')
@@ -84,17 +92,17 @@ class Evaluation(models.Model):
     team_members = models.IntegerField()
     expected_time = models.DateTimeField()
     estimated_price = models.FloatField()
-    evaluation_date = models.DateTimeField(default=timezone.now())
+    evaluation_date = models.DateTimeField(default=timezone.now)
     description = models.TextField(null=True)
     discount = models.IntegerField(null=True)
-    accepted = models.BooleanField(default=False)
+    accepted = models.CharField(max_length=30, choices=ACCEPT_FLAGS)
 
     def __str__(self):
         return '{} - {}'.format(self.expected_time, self.estimated_price)
 
 
 class Team(models.Model):
-    date = models.DateTimeField(default=timezone.now())
+    date = models.DateTimeField(default=timezone.now)
     team_id = models.CharField(max_length=50)
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
     task = models.ForeignKey(OrderTask, on_delete=models.CASCADE)
@@ -109,7 +117,7 @@ class Visit(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
     order_task = models.ForeignKey(OrderTask, on_delete=models.CASCADE)
     visitor = models.ForeignKey(User, on_delete=models.CASCADE)
-    start = models.DateTimeField(default=timezone.now())
+    start = models.DateTimeField(default=timezone.now)
     end = models.DateTimeField(null=True)
     team = models.ForeignKey(Team, on_delete=models.CASCADE, null=True)
 
@@ -121,7 +129,7 @@ class Accounts(models.Model):
 
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
     order_task = models.ForeignKey(OrderTask, on_delete=models.CASCADE)
-    date = models.DateTimeField(default=timezone.now())
+    date = models.DateTimeField(default=timezone.now)
     amount = models.FloatField(null=True)
     check_no = models.IntegerField(null=True)
     check_date = models.DateTimeField(null=True)

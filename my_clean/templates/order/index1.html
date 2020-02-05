@@ -37,6 +37,13 @@ from my_clean.settings import EMAIL_HOST_USER
     msg = 'http://127.0.0.1:8000/customer/customer_view/'
     send_mail("Customer Test", msg, EMAIL_HOST_USER, [email], fail_silently=False)
 
+    data = URL.encryption(self, pk=88)
+            print("login :-  ", data)
+            self.request.session['data'] = data
+
+data = self.request.session.pop('data', None)
+        value = URL.decryption(self, data=data)
+        print('task:- ', value)
 
   </body>
 <html>

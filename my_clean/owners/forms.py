@@ -142,6 +142,7 @@ class EvaluationForm(forms.ModelForm):
         dust_level_price = DustLevelPrice.objects.get(dust_level=dust_level)
         estimated_price = dust_level_price.price * no_of_team_members
         instance.order_id = self.pk
+        instance.accepted = Evaluation.CREATED
         instance.evaluator_order_task_id = self.task_id
         instance.estimated_price = estimated_price
         assigned_to = self.cleaned_data['assigned_to']

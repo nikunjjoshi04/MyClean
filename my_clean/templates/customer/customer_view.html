@@ -56,6 +56,7 @@
 
 
     <div class="breadcrumb mb-4">
+        <li class="breadcrumb-item pt-1 text-center"><a href="{% url 'order:home' %}">Home</a></li>
         <li class="breadcrumb-item pt-1 text-center">Order Detail</li>
     </div>
     <div class="container p-3 my-3 border pl-5">
@@ -141,7 +142,12 @@
         <div class="container p-3 my-3 border pl-5">
             <h6>{{ evaluation.order.description }}</h6>
         </div>
-        <a class="btn btn-primary btn-block my-5" href="{% url 'order:home' %}">Accept</a>
+        {% if evaluation.accepted == 'stl_accept' %}
+            {{ evaluation.id }}
+            <a class="btn btn-primary btn-block my-5" href="{% url 'customer:customer_accept' evaluation.id %}">Accept</a>
+        {% else %}
+            <button class="btn btn-primary btn-block my-5 disabled">Accepted...!</button>
+        {% endif %}
     </div>
     {% endfor %}
 
