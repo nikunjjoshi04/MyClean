@@ -14,7 +14,20 @@
             {% for field in form %}
             <div class="col-md-6">
                 <div class="form-group">
-                    {{ field.errors }}
+                    {% if field.errors %}
+<!--                    <div class="ml-5 row text-danger">-->
+<!--                        <strong>Ooops...!</strong>-->
+<!--                        <p>{{ field.errors }}</p>-->
+<!--                    </div>-->
+                    <div class="col-sm-12">
+                    <div class="alert alert-danger alert-dismissible fade show row pb-0" role="alert">
+                      <strong>Ooops...!</strong> {{ field.errors }}
+                      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    </div>
+                    {% endif %}
                     <label class="small mb-1" for="{{ field.id_for_label }}">{{ field.label_tag }}</label>
                     <!--                    <input class="form-control py-4" id="inputPassword" type="password" placeholder="Enter password" />-->
                     {{ field }}
@@ -98,7 +111,8 @@
 <script type="text/javascript">
     $(function () {
         $("#id_schedule_on").datetimepicker({
-        format: 'YYYY-MM-DD HH:mm'
+        format: 'YYYY-MM-DD HH:mm',
+        minDate: moment()
     });
     });
 </script>

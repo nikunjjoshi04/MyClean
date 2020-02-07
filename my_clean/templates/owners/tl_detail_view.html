@@ -11,7 +11,7 @@
 
     <h5 class="text-center text-light py-2 px-2 bg-dark">{{ order.order.unique_id }} - {{ order.order.process }} - {{ order.order.service }}</h5>
     {% if order.process != "finish" %}
-    <div class="row my-5">
+    <div id="start_end" class="row my-5">
         <div class="col-md-6">
             <button id="start" task-id="{{ order.id }}" class="btn btn-block btn-primary">Start</button>
         </div>
@@ -147,6 +147,7 @@
             $(this).attr("class", "btn btn-block  btn-outline-danger");
             $(this).prop('disabled', true);
             $('#end').prop('disabled', false);
+
             var task_id = $(this).attr('task-id');
             var url = '{% url 'owners:tl_start' %}';
             $.ajax({
@@ -163,6 +164,7 @@
          $('#end').click(function(){
             $(this).attr("class", "btn btn-block  btn-outline-danger");
             $(this).prop('disabled', true);
+
             var visit_id = $(this).attr('visit_id');
             var url = '{% url 'owners:tl_end' %}';
              $.ajax({
@@ -171,6 +173,7 @@
                     visit_id:visit_id
                 },
                 success:function(data){
+                    $("#start_end").html("<a class='btn btn-block btn-primary' href='{% url 'owners:tl_task_view' %}' > Back To Tasks</a>");
                 }
             });
          });

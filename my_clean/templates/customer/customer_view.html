@@ -143,7 +143,6 @@
             <h6>{{ evaluation.order.description }}</h6>
         </div>
         {% if evaluation.accepted == 'stl_accept' %}
-            {{ evaluation.id }}
             <a class="btn btn-primary btn-block my-5" href="{% url 'customer:customer_accept' evaluation.id %}">Accept</a>
         {% else %}
             <button class="btn btn-primary btn-block my-5 disabled">Accepted...!</button>

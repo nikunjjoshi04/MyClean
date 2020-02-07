@@ -21,7 +21,7 @@
     </thead>
     <tbody>
     {% for task in tasks %}
-    {% if task != 'finish' %}
+    {% if task.process != 'finish' and task.order.order_pk.first.accepted == 'client_accept' %}
     <tr>
         <td>{{ task.id }}</td>
         <td>{{ task.order.unique_id }}</td>
@@ -55,7 +55,7 @@
 
 <!--  Finished Tasks  -->
     {% for task in tasks %}
-    {% if task == 'finish' %}
+    {% if task.process == 'finish' %}
     <tr>
         <td>{{ task.id }}</td>
         <td>{{ task.order.unique_id }}</td>

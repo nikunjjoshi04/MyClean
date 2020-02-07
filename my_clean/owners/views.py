@@ -28,23 +28,27 @@ class LoginView(FormView):
     success_url = ''
 
     def form_valid(self, form):
+        print('form_valid')
         username = form.cleaned_data['username']
         password = form.cleaned_data['password']
         user = authenticate(username=username, password=password)
         if user:
             login(self.request, user)
 
-        if user.user_type == "agent":
-            self.success_url = '/owners/agent_view'
-        elif user.user_type == "evaluator":
-            self.success_url = '/owners/evaluator_view'
-        elif user.user_type == "stl":
-            self.success_url = '/owners/stl_view'
-        elif user.user_type == "tl":
-            self.success_url = '/owners/tl_task_view'
-        elif user.user_type == "accountent":
-            self.success_url = '/owners/account_task_view'
+            if user.user_type == "agent":
+                self.success_url = '/owners/agent_view'
+            elif user.user_type == "evaluator":
+                self.success_url = '/owners/evaluator_view'
+            elif user.user_type == "stl":
+                self.success_url = '/owners/stl_view'
+            elif user.user_type == "tl":
+                self.success_url = '/owners/tl_task_view'
+            elif user.user_type == "accountent":
+                self.success_url = '/owners/account_task_view'
         return super(LoginView, self).form_valid(form)
+
+    def form_invalid(self, form):
+        return super(LoginView, self).form_invalid(form)
 
 
 class AgentView(FormView):
@@ -325,6 +329,10 @@ class AccountDetailView(FormView):
         kwargs = super(AccountDetailView, self).get_form_kwargs()
         kwargs['task_id'] = self.kwargs['pk']
         return kwargs
+
+    def form_invalid(self, form):
+        print(form.errors)
+        return super(AccountDetailView, self).form_invalid(form)
 
 
 def logout_user(request):

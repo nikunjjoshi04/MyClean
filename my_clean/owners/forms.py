@@ -14,8 +14,37 @@ from order.models import Order, \
 
 
 class LoginForm(forms.Form):
-    username = forms.CharField(label='User Name', widget=forms.TextInput(attrs={'class': 'form-control py-2'}))
-    password = forms.CharField(label='Password', widget=forms.PasswordInput(attrs={'class': 'form-control py-2'}))
+    username = forms.CharField(
+        label='User Name',
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control py-2'
+            }
+        )
+    )
+    password = forms.CharField(
+        label='Password',
+        widget=forms.PasswordInput(
+            attrs={
+                'class': 'form-control py-2'
+            }
+        )
+    )
+
+    def clean(self):
+        cleaned_data = super(LoginForm, self).clean()
+        print('clean')
+        username = cleaned_data['username']
+        password = cleaned_data['password']
+
+        try:
+            user = authenticate(username=username, password=password)
+        except Exception as e:
+            raise forms.ValidationError(e)
+        if user:
+            if user.user_type is None or user.user_type == "admin":
+                raise forms.ValidationError("Not Valid User")
+        return cleaned_data
 
 
 class SearchForm(forms.Form):
@@ -199,6 +228,15 @@ class STLReviewForm(forms.ModelForm):
         model = Evaluation
         fields = ['team_members', 'expected_time', 'estimated_price', 'discount']
 
+    def clean_team(self):
+        team = self.cleaned_data['team']
+        team_members = self.cleaned_data['team_members']
+        if team.count() < team_members:
+            raise forms.ValidationError("The team member is Less then required parsons")
+        elif team.count() > team_members:
+            raise forms.ValidationError("The team member is More then required parsons")
+        return team
+
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
         self.task_id = kwargs.pop('task_id', None)
@@ -261,6 +299,14 @@ class PaymentForm(forms.ModelForm):
         elif amount < price:
             raise forms.ValidationError("Amount Is Less Then Actual Price")
         return amount
+
+    def clean_check_no(self):
+        check_no = self.cleaned_data['check_no']
+        if check_no is None:
+            return check_no
+        elif len(str(check_no)) > 18:
+            raise forms.ValidationError("Enter Valid Check No...")
+        return check_no
 
     def save(self, commit=True):
         task = OrderTask.objects.get(id=self.task_id)

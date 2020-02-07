@@ -1,4 +1,5 @@
 {% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -23,6 +24,12 @@
                                     <div class="card-body">
                                         <form method="POST">
                                             {% csrf_token %}
+                                            {% if form.non_field_errors %}
+                                            <div class=" row alert alert-danger alert-dismissible">
+                                                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                                                <strong>Ooops...!</strong>{{ form.non_field_errors }}
+                                            </div>
+                                            {% endif %}
                                             {% for field in form %}
                                             <div class="form-group">
                                                 <label class="small mb-1" for="{{ field.id_for_label }}">{{ field.label_tag }} </label>
@@ -45,20 +52,6 @@
                     </div>
                 </main>
             </div>
-<!--            <div id="layoutAuthentication_footer">-->
-<!--                <footer class="py-4 bg-light mt-auto">-->
-<!--                    <div class="container-fluid">-->
-<!--                        <div class="d-flex align-items-center justify-content-between small">-->
-<!--                            <div class="text-muted">Copyright &copy; Your Website 2019</div>-->
-<!--                            <div>-->
-<!--                                <a href="#">Privacy Policy</a>-->
-<!--                                &middot;-->
-<!--                                <a href="#">Terms &amp; Conditions</a>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                </footer>-->
-<!--            </div>-->
         </div>
         <script src="https://code.jquery.com/jquery-3.4.1.min.js" crossorigin="anonymous"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
