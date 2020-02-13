@@ -2,21 +2,26 @@ from builtins import super
 from django.utils import timezone
 from django.core.mail import send_mail
 from django.http import HttpResponseRedirect, JsonResponse
-from django.shortcuts import redirect
+
+from django.forms import modelformset_factory, formset_factory
+from django.contrib import messages
+
+
+from django.shortcuts import redirect, render
 from django.views.generic.edit import FormView, UpdateView
 from django.views.generic import TemplateView, DetailView, ListView, CreateView
 from datetime import datetime
 from django.contrib.auth import logout, login, authenticate
 from .forms import LoginForm, OrderForm, \
     OrderTaskForm, CustomerForm, AddressForm, EvaluationForm, \
-    STLReviewForm, PaymentForm
-from .models import User
+    STLReviewForm, PaymentForm, PostForm, ImageForm
+from .models import User, Post, Images
 from my_clean.settings import EMAIL_HOST_USER
 from owners.util import URL
 from order.models import Order, \
     OrderTask, Evaluation, \
     Team, Services, \
-    DustLevelPrice, Visit
+    DustLevelPrice, Visit, EvaluationMedia
 
 
 # Create your views here.
@@ -28,7 +33,6 @@ class LoginView(FormView):
     success_url = ''
 
     def form_valid(self, form):
-        print('form_valid')
         username = form.cleaned_data['username']
         password = form.cleaned_data['password']
         user = authenticate(username=username, password=password)
@@ -130,7 +134,12 @@ class EvaluationView(FormView):
     success_url = '/owners/evaluator_view'
 
     def form_valid(self, form):
-        form.save()
+        eval_form = form.save(commit=False)
+        eval_form.save()
+        images = list(self.request.FILES.pop("images", None))
+        for image in images:
+            evaluation_media = EvaluationMedia(image=image, is_evaluation=eval_form)
+            evaluation_media.save()
         order = Order.objects.get(id=self.kwargs['pk'])
         order.process = Order.EVALUATION_DONE
         order.save()
@@ -338,3 +347,40 @@ class AccountDetailView(FormView):
 def logout_user(request):
     logout(request)
     return redirect('/order/home')
+
+
+def post(request):
+
+    ImageFormSet = modelformset_factory(Images,form=ImageForm, extra=3)
+
+    #'extra' means the number of photos that you can upload   ^
+
+    if request.method == 'POST':
+
+        postForm = PostForm(request.POST)
+        formset = ImageFormSet(request.POST, request.FILES,
+                               queryset=Images.objects.none())
+
+
+        if postForm.is_valid() and formset.is_valid():
+            post_form = postForm.save(commit=False)
+            post_form.user = request.user
+            post_form.save()
+
+            for form in formset.cleaned_data:
+                #this helps to not crash if the user
+                #do not upload all the photos
+                if form:
+                    image = form['image']
+                    photo = Images(post=post_form, image=image)
+                    photo.save()
+            messages.success(request,
+                             "Yeeew, check it out on the home page!")
+            return HttpResponseRedirect("/")
+        else:
+            print(postForm.errors, formset.errors)
+    else:
+        postForm = PostForm()
+        formset = ImageFormSet(queryset=Images.objects.none())
+    return render(request, 'owners/blog.html',
+                  {'postForm': postForm, 'formset': formset})

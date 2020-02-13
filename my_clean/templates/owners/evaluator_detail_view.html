@@ -6,72 +6,114 @@
     <li class="breadcrumb-item pt-1 text-center"><a href="{% url 'owners:evaluator_view' %}">Tasks List</a></li>
     <li class="breadcrumb-item pt-1 text-center">Order Order Detail</li>
 </div>
-<div class="container p-3 my-3 border pl-5">
-    <h5 class="text-center text-light py-2 px-2 bg-dark">{{ evaluation.order.unique_id }} - {{ evaluation.order.process }} - {{ evaluation.order.service }}</h5>
-    <div class="row mt-5">
-        <div class="col-md-6">
-            <p>Customer Name:<br><br> {{ evaluation.order.customer.first_name.capitalize }}  {{ evaluation.order.customer.last_name.capitalize }}</p>
-        </div>
-        <div class="col-md-6">
-            <p>City:<br><br> {{ evaluation.order.address.city.city_name.capitalize }}  {{ evaluation.order.address.city.state.state_name.capitalize }}</p>
+
+<!-- Intro Content -->
+<div class="row">
+    <div class="col-lg-6">
+        <img class="img-fluid rounded mb-4" src="{{ evaluation.evaluationmedia_set.first.image.url }}" alt="">
+    </div>
+    <div class="col-lg-6">
+        <h2>
+            {{ evaluation.order.unique_id }} -
+            <small>
+                {{ evaluation.order.get_process_display }}
+            </small>
+        </h2>
+        <h4 class="mt-3">
+            {{ evaluation.order.customer.first_name.capitalize }}
+            {{ evaluation.order.customer.last_name.capitalize }}
+            <small>
+                {{ evaluation.order.address.city.city_name.capitalize }}
+                ({{ evaluation.order.address.city.state.state_name.capitalize }})
+            </small>
+        </h4>
+        <p class=" mt-3 row">
+            <i class="fa fa-mobile col-md-6" aria-hidden="true"> : {{ evaluation.order.customer.mobile_no }}</i>
+            <i class="fa fa-envelope-o col-md-6" aria-hidden="true"> : {{ evaluation.order.customer.email }}</i>
+        </p>
+        <p class="mt-4 ml-2">
+            {{ evaluation.order.address.street }}
+            <br>
+            {{ evaluation.order.address.building }}
+            <br>
+            {{ evaluation.order.address.city.state.state_name.capitalize }}
+            {{ evaluation.order.address.city.city_name.capitalize }}
+            <br>
+            360470
+        </p>
+        <div class="row mt-3">
+            <pre class="col-md-6"><i class="fa fa-handshake-o" aria-hidden="true"></i> Agent :<br>   {{ evaluation.evaluator_order_task.created_by.get_full_name }}</pre>
+            <pre class="col-md-6"><i class="fa fa-yelp" aria-hidden="true"></i> Evaluator :<br>   {{ evaluation.evaluator_order_task.assigned_to.get_full_name }}</pre>
         </div>
     </div>
-    <div class="row mt-5">
-        <div class="col-md-6">
-            <p>Contact:<br><br> {{ evaluation.order.customer.mobile_no }} <br> {{ evaluation.order.customer.email }}</p>
-        </div>
-        <div class="col-md-6">
-            <p>Address:<br><br> {{ evaluation.order.address.street }} <br> {{ evaluation.order.address.building }}</p>
-        </div>
+</div>
+<!-- /.row -->
+
+<hr>
+
+<h2 class="mt-2">Images</h2>
+<div class="row">
+    {% for img in evaluation.evaluationmedia_set.all %}
+    <div class="col-sm-3 mb-4">
+        <img class="img-fluid" height="100" width="100" src="{{ img.image.url }}" alt="">
     </div>
-    <div class="row mt-5">
-        <div class="col-md-3">
-            <p>Booked By Agent:<br><br>  {{ evaluation.evaluator_order_task.created_by.get_full_name }}</p>
-        </div>
-        <div class="col-md-3">
-            <p>Booked Time:<br><br> {{ evaluation.evaluator_order_task.order.date.date }} <br> {{ evaluation.evaluator_order_task.date.time }}</p>
-        </div>
-        <div class="col-md-3">
-            <p>Assigned Evaluator:<br><br>  {{ evaluation.evaluator_order_task.assigned_to.get_full_name }}</p>
-        </div>
-        <div class="col-md-3">
-            <p>Evaluation Time:<br><br> {{ evaluation.evaluator_order_task.schedule_on.date }} <br> {{ evaluation.evaluator_order_task.schedule_on.time }}</p>
-        </div>
+    {% endfor %}
+</div>
+
+<hr>
+
+<h2 class="mt-2">Time Map</h2>
+<div class="row">
+    <div class="col-md-3">
+        <pre><b>Booked Time :</b><br> {{ evaluation.evaluator_order_task.order.date.date }}<br>  {{ evaluation.evaluator_order_task.order.date.time }}</pre>
     </div>
-    <div class="row mt-5">
-        <div class="col-md-3">
-            <p>Dust Level Price:<br><br>  {{ evaluation.dust_level }} - {{ evaluation.dust_level.price }}</p>
-        </div>
-        <div class="col-md-3">
-            <p>Team Members:<br><br> {{ evaluation.team_members }}</p>
-        </div>
-        <div class="col-md-3">
-            <p>Estimated Price:<br><br> {{ evaluation.estimated_price }}</p>
-        </div>
-        <div class="col-md-3">
-            <p>Assigned Senior Team Leader:<br><br> {{ evaluation.assigned_to.get_full_name }}</p>
-        </div>
+    <div class="col-md-3">
+        <pre><b>Evaluation Start :</b><br> {{ evaluation.evaluator_order_task.schedule_on.date }}<br>  {{evaluation.evaluator_order_task.schedule_on.time }}</pre>
     </div>
-    <div class="row mt-5">
-        <div class="col-md-6">
-            <p>Evaluation Complete:<br><br> {{ evaluation.evaluation_date.date }} <br> {{ evaluation.evaluation_date.time }}</p>
-        </div>
-        <div class="col-md-6">
-            <p>Cleaning Time:<br><br> {{ evaluation.expected_time.date }} <br> {{ evaluation.expected_time.time }}</p>
-        </div>
+    <div class="col-md-3">
+        <pre><b>Evaluation End :</b><br> {{ evaluation.evaluation_date.date }}<br>  {{evaluation.evaluation_date.time }}</pre>
     </div>
-    <p class="mt-5">Order Description: </p>
-    <div class="container p-3 my-3 border pl-5">
-        <h6>{{ evaluation.order.description }}</h6>
+    <div class="col-md-3">
+        <pre><b>Cleaning Time :</b><br> {{ evaluation.expected_time.date }}<br>  {{ evaluation.expected_time.time }}</pre>
     </div>
-    <p class="mt-5">Evaluation Description: </p>
-    <div class="container p-3 my-3 border pl-5">
-        <h6>{{ evaluation.description }}</h6>
+</div>
+
+<hr>
+
+<h2 class="mt-2">Evaluation</h2>
+<div class="row">
+    <div class="col-md-2">
+        <pre><b>Cleaning Type :</b><br> {{ evaluation.order.service }}</pre>
     </div>
-    <p class="mt-5">Message for Evaluator: </p>
-    <div class="container p-3 my-3 border pl-5">
-        <h5 class="text-center">{{ evaluation.evaluator_order_task.message }}</h5>
+    <div class="col-md-2">
+        <pre><b>Dust Level Price :</b><br> {{ evaluation.dust_level }} -  {{ evaluation.dust_level.price }}</pre>
     </div>
+    <div class="col-md-2">
+        <pre><b>Team Members :</b><br>  {{ evaluation.team_members }}</pre>
+    </div>
+    <div class="col-md-2">
+        <pre><b>Estimated Price :</b><br> {{ evaluation.estimated_price }}</pre>
+    </div>
+    <div class="col-md-3">
+        <pre><b>Senior Team Leader :</b><br> {{ evaluation.assigned_to.get_full_name }}</pre>
+    </div>
+</div>
+
+<hr>
+
+<h4 class="mt-2">Message for Evaluator</h4>
+<pre>    {{ evaluation.evaluator_order_task.message }}</pre>
+
+<hr>
+
+<h4 class="mt-2">Order Description</h4>
+<pre>    {{ evaluation.order.description }}</pre>
+
+<hr>
+
+<h4 class="mt-2">Evaluation Description</h4>
+<pre>    {{ evaluation.description }}</pre>
+
 </div>
 
 

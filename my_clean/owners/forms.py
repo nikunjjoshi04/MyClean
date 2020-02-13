@@ -1,7 +1,7 @@
 from dataclasses import fields
 from datetime import datetime
 from django import forms
-from .models import User, TeamMembers
+from .models import User, TeamMembers, Post, Images
 from django.utils import timezone
 from tempus_dominus.widgets import DateTimePicker
 from django.contrib.auth import authenticate, login
@@ -121,6 +121,9 @@ class AddressForm(forms.ModelForm):
 
 
 class EvaluationForm(forms.ModelForm):
+
+    images = forms.ImageField(required=False)
+
     description = forms.CharField(
         widget=forms.Textarea(
             attrs={'class': 'form-control py-2', 'rows': '3'}
@@ -159,10 +162,16 @@ class EvaluationForm(forms.ModelForm):
             self.fields['assigned_to'].queryset = User.objects.filter(user_type=User.STL)
         else:
             self.fields['assigned_to'].queryset = User.objects.all()
+        self.fields['images'].widget.attrs.update({"multiple": ''})
 
     class Meta:
         model = Evaluation
         fields = ['dust_level', 'team_members', 'expected_time', 'assigned_to', 'description']
+
+    # def clean_img(self):
+    #     imgs = self.cleaned_data['img']
+    #     print(imgs)
+    #     return imgs
 
     def save(self, commit=True):
         instance = super(EvaluationForm, self).save(commit=False)
@@ -185,6 +194,17 @@ class EvaluationForm(forms.ModelForm):
         instance.stl_order_task = order_task
         instance.save()
         return super(EvaluationForm, self).save(commit=commit)
+
+
+class EvaluationMediaForm(forms.Form):
+    image = forms.ImageField(
+        widget=forms.FileInput(
+            attrs={
+                "class": "custom-file-input"
+            }
+        ),
+        required=False
+    )
 
 
 class STLReviewForm(forms.ModelForm):
@@ -319,3 +339,20 @@ class PaymentForm(forms.ModelForm):
         task.save()
         instance.save()
         return super(PaymentForm, self).save(commit=commit)
+
+
+class PostForm(forms.ModelForm):
+    title = forms.CharField(max_length=128)
+    body = forms.CharField(max_length=245, label="Item Description.")
+
+    class Meta:
+        model = Post
+        fields = ('title', 'body', )
+
+
+class ImageForm(forms.ModelForm):
+    image = forms.ImageField(label='Image')
+
+    class Meta:
+        model = Images
+        fields = ('image', )

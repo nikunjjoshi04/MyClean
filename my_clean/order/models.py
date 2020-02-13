@@ -3,7 +3,6 @@ from django.utils import timezone
 from customer.models import Customer, Address
 from owners.models import User, TeamMembers
 
-
 # Create your models here.
 
 
@@ -99,6 +98,11 @@ class Evaluation(models.Model):
 
     def __str__(self):
         return '{} - {}'.format(self.expected_time, self.estimated_price)
+
+
+class EvaluationMedia(models.Model):
+    image = models.ImageField(upload_to='evaluation/', null=True)
+    is_evaluation = models.ForeignKey(Evaluation, on_delete=models.CASCADE, null=True)
 
 
 class Team(models.Model):

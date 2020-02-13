@@ -5,7 +5,7 @@
       <li class="breadcrumb-item pt-1 text-center"><a href="{% url 'owners:evaluator_view' %}">Tasks List</a></li>
       <li class="breadcrumb-item pt-1 text-center">Evaluation Form</li>
   </div>
-    <form method="POST">
+    <form method="POST", enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.media }}
         <div class="form-row">
@@ -45,8 +45,16 @@
                 {{ form.description.label_tag }}</label>
             {{ form.description }}
         </div>
+        <div class="form-group">
+            <label class="small mb-1" for="{{ form.images.id_for_label }}">
+                {{ form.images.label_tag }}</label>
+            {{ form.images }}
+        </div>
         <button class="btn btn-primary btn-block" type="submit">Submit</button>
     </form>
+
+{% endblock %}
+
 {% block js %}
 <script type="text/javascript">
     $(function () {
@@ -54,7 +62,27 @@
         format: 'YYYY-MM-DD HH:mm'
     });
     });
-</script>
-{% endblock %}
 
+</script>
+<script type="text/javascript">
+    $(document).ready(function(){
+        $('#id_form-0-image').attr('style', "visibility:hidden");
+        $('#id_form-0-image').prev().attr('class', 'custom-file-label');
+        $("#id_form-0-image").on("change", function() {
+          var fileName = $(this).val().split("\\").pop();
+          console.info(fileName);
+          console.info('fileName');
+          $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+        });
+
+        $('#id_form-1-image').attr('style', "visibility:hidden");
+        $('#id_form-1-image').prev().attr('class', 'custom-file-label');
+        $("#id_form-1-image").on("change", function() {
+          var fileName = $(this).val().split("\\").pop();
+          console.info(fileName);
+          console.info('fileName');
+          $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+        });
+    });
+</script>
 {% endblock %}
