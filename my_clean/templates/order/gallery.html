@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Page Heading/Breadcrumbs -->
+    <h1 class="mt-4 mb-3">Photo Gallery</h1>
+
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="{% url 'order:home' %}">Home</a>
+      </li>
+      <li class="breadcrumb-item active">Photo Gallery</li>
+    </ol>
+    <div class="row">
+      <div class="col-lg-4 mb-4">
+        <div class="card h-100 text-center">
+          <img class="card-img-top" height="200" width="250" src="{% static 'images/c1.jpeg' %}" alt="">
+        </div>
+      </div>
+      <div class="col-lg-4 mb-4">
+        <div class="card h-100 text-center">
+          <img class="card-img-top" height="200" width="250" src="{% static 'images/c2.jpeg' %}" alt="">
+        </div>
+      </div>
+      <div class="col-lg-4 mb-4">
+        <div class="card h-100 text-center">
+          <img class="card-img-top" height="200" width="250" src="{% static 'images/c3.jpg' %}" alt="">
+        </div>
+      </div>
+      <div class="col-lg-4 mb-4">
+        <div class="card h-100 text-center">
+          <img class="card-img-top" height="200" width="250" src="{% static 'images/c4.png' %}" alt="">
+        </div>
+      </div>
+      <div class="col-lg-4 mb-4">
+        <div class="card h-100 text-center">
+          <img class="card-img-top" height="200" width="250" src="{% static 'images/c5.jpg' %}" alt="">
+        </div>
+      </div>
+      <div class="col-lg-4 mb-4">
+        <div class="card h-100 text-center">
+          <img class="card-img-top" height="200" width="250" src="{% static 'images/pest control.jpg' %}" alt="">
+        </div>
+      </div>
+      <div class="col-lg-4 mb-4">
+        <div class="card h-100 text-center">
+          <img class="card-img-top" height="200" width="250" src="{% static 'images/c7.jpeg' %}" alt="">
+        </div>
+      </div>
+      <div class="col-lg-4 mb-4">
+        <div class="card h-100 text-center">
+          <img class="card-img-top" height="200" width="250" src="{% static 'images/c8.jpg' %}" alt="">
+        </div>
+      </div>
+      <div class="col-lg-4 mb-4">
+        <div class="card h-100 text-center">
+          <img class="card-img-top" height="200" width="250" src="{% static 'images/c9.jpeg' %}" alt="">
+        </div>
+      </div>
+      <div class="col-lg-4 mb-4">
+        <div class="card h-100 text-center">
+          <img class="card-img-top" height="200" width="250" src="{% static 'images/m1.jpg' %}" alt="">
+        </div>
+      </div>
+      <div class="col-lg-4 mb-4">
+        <div class="card h-100 text-center">
+          <img class="card-img-top" height="200" width="250" src="{% static 'images/m2.jpg' %}" alt="">
+        </div>
+      </div>
+      <div class="col-lg-4 mb-4">
+        <div class="card h-100 text-center">
+          <img class="card-img-top" height="200" width="250" src="{% static 'images/m3.jpg' %}" alt="">
+        </div>
+      </div>
+    </div>
+    <!-- /.row -->
+{% endblock %}

@@ -71,7 +71,7 @@ class OrderTask(models.Model):
     message = models.CharField(max_length=200, null=True)
 
     def __str__(self):
-        return "{} - {}".format(self.order.unique_id, self.process)
+        return "{} - {} - {}".format(self.order.unique_id, self.process, self.id)
 
 
 class Evaluation(models.Model):

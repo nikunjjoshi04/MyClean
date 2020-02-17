@@ -16,8 +16,7 @@ class URL(object):
         time_stamp = TimestampSigner()
         data = kwargs.pop('data', None)
         try:
-            print('BTS:-', data)
-            data = time_stamp.unsign(data, max_age=20)
+            data = time_stamp.unsign(data, max_age=3600)
             data = signing.loads(data)
         except Exception as e:
             print(e)

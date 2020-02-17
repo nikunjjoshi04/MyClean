@@ -241,7 +241,8 @@ class STLReviewForm(forms.ModelForm):
     discount = forms.IntegerField(
         widget=forms.TextInput(
             attrs={'class': 'form-control py-2'}
-        )
+        ),
+        required=False
     )
 
     class Meta:

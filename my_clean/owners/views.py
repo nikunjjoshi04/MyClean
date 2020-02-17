@@ -44,7 +44,7 @@ class LoginView(FormView):
             elif user.user_type == "evaluator":
                 self.success_url = '/owners/evaluator_view'
             elif user.user_type == "stl":
-                self.success_url = '/owners/stl_view'
+                self.success_url = '/owners/stl_task_view'
             elif user.user_type == "tl":
                 self.success_url = '/owners/tl_task_view'
             elif user.user_type == "accountent":
@@ -116,7 +116,7 @@ class AgentTaskView(ListView):
 class AgentDetailView(DetailView):
     template_name = 'owners/agent_detail_view.html'
     model = OrderTask
-    context_object_name = 'order'
+    context_object_name = 'order_task'
 
 
 class EvaluatorView(ListView):
@@ -170,12 +170,12 @@ class EvaluatorDetailView(TemplateView):
         return context
 
 
-class STLView(TemplateView):
-    template_name = 'owners/stl_view.html'
+class STLTaskView(TemplateView):
+    template_name = 'owners/stl_task_view.html'
     model = Evaluation
 
     def get_context_data(self, **kwargs):
-        context = super(STLView, self).get_context_data()
+        context = super(STLTaskView, self).get_context_data()
         context['tasks'] = self.model.objects.filter(assigned_to=self.request.user).order_by('-id')
         return context
 
@@ -184,7 +184,7 @@ class STLReview(UpdateView):
     template_name = 'owners/stl_review.html'
     form_class = STLReviewForm
     model = Evaluation
-    success_url = '/owners/stl_view'
+    success_url = '/owners/stl_task_view'
 
     def form_valid(self, form):
         assigned_to = form.cleaned_data['assigned_to']
@@ -220,7 +220,8 @@ class STLReview(UpdateView):
         )
         team.team_member.set(team_members)
         email = 'nikunj.joshi@trootech.com'
-        send_mail("Customer Test", msg, EMAIL_HOST_USER, [email], fail_silently=False)
+        email1 = order.customer.email
+        send_mail("Customer Test", msg, EMAIL_HOST_USER, [email, email1], fail_silently=False)
         return super(STLReview, self).form_valid(form)
 
     def get_form_kwargs(self):
@@ -239,7 +240,7 @@ class STLReview(UpdateView):
 class STLDetailView(DetailView):
     template_name = 'owners/stl_detail_view.html'
     model = OrderTask
-    context_object_name = 'order'
+    context_object_name = 'order_task'
 
     # def get_context_data(self, **kwargs):
     #     import pdb;pdb.set_trace()
@@ -270,7 +271,7 @@ class TLTaskView(ListView):
 class TLDetailView(DetailView):
     template_name = 'owners/tl_detail_view.html'
     model = OrderTask
-    context_object_name = 'order'
+    context_object_name = 'order_task'
 
 
 def tl_start(request):
@@ -327,7 +328,7 @@ class AccountDetailView(FormView):
 
     def get_context_data(self, **kwargs):
         context = super(AccountDetailView, self).get_context_data()
-        context['order'] = OrderTask.objects.get(id=self.kwargs['pk'])
+        context['order_task'] = OrderTask.objects.get(id=self.kwargs['pk'])
         return context
 
     def form_valid(self, form):

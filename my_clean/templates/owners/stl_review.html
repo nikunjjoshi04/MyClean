@@ -1,46 +1,123 @@
 {% extends 'base.html' %}
 
-
 {% block content %}
+
 <div class="breadcrumb mb-4">
-    <li class="breadcrumb-item pt-1 text-center"><a href="{% url 'owners:stl_view' %}">Tasks List</a></li>
-    <li class="breadcrumb-item pt-1 text-center">Evaluated Order Details</li>
+    <li class="breadcrumb-item pt-1 text-center"><a href="{% url 'owners:stl_task_view' %}">Tasks List</a></li>
+    <li class="breadcrumb-item pt-1 text-center">Order Order Detail</li>
 </div>
-<div class="container p-3 my-3 border">
-    <form method="POST">
+
+<!-- Intro Content -->
+<div class="row">
+    <div class="col-lg-6">
+        <img class="img-fluid rounded mb-4" src="{{ evaluation.evaluationmedia_set.first.image.url }}" alt="">
+    </div>
+    <div class="col-lg-6">
+        <h2>
+            {{ evaluation.order.unique_id }} -
+            <small>
+                {{ evaluation.order.get_process_display }}
+            </small>
+        </h2>
+        <h4 class="mt-3">
+            {{ evaluation.order.customer.first_name.capitalize }}
+            {{ evaluation.order.customer.last_name.capitalize }}
+            <small>
+                {{ evaluation.order.address.city.city_name.capitalize }}
+                ({{ evaluation.order.address.city.state.state_name.capitalize }})
+            </small>
+        </h4>
+        <p class=" mt-3 row">
+            <i class="fa fa-mobile col-md-6" aria-hidden="true"> : {{ evaluation.order.customer.mobile_no }}</i>
+            <i class="fa fa-envelope-o col-md-6" aria-hidden="true"> : {{ evaluation.order.customer.email }}</i>
+        </p>
+        <p class="mt-4 ml-2">
+            {{ evaluation.order.address.street }}
+            <br>
+            {{ evaluation.order.address.building }}
+            <br>
+            {{ evaluation.order.address.city.state.state_name.capitalize }}
+            {{ evaluation.order.address.city.city_name.capitalize }}
+            <br>
+            360470
+        </p>
+        <div class="row mt-3">
+            <pre class="col-md-6"><i class="fa fa-handshake-o" aria-hidden="true"></i> Agent :<br>   {{ evaluation.evaluator_order_task.created_by.get_full_name }}</pre>
+            <pre class="col-md-6"><i class="fa fa-yelp" aria-hidden="true"></i> Evaluator :<br>   {{ evaluation.evaluator_order_task.assigned_to.get_full_name }}</pre>
+        </div>
+    </div>
+</div>
+<!-- /.row -->
+
+<hr>
+
+<h2 class="mt-2">Images</h2>
+<div class="row">
+    {% for img in evaluation.evaluationmedia_set.all %}
+    <div class="col-sm-3 mb-4">
+        <img class="img-fluid" height="100" width="100" src="{{ img.image.url }}" alt="">
+    </div>
+    {% endfor %}
+</div>
+
+<hr>
+
+<h2 class="mt-2">Time Map</h2>
+<div class="row">
+    <div class="col-md-3">
+        <pre><b>Booked Time :</b><br> {{ evaluation.evaluator_order_task.order.date.date }}<br>  {{ evaluation.evaluator_order_task.order.date.time }}</pre>
+    </div>
+    <div class="col-md-3">
+        <pre><b>Evaluation Start :</b><br> {{ evaluation.evaluator_order_task.schedule_on.date }}<br>  {{evaluation.evaluator_order_task.schedule_on.time }}</pre>
+    </div>
+    <div class="col-md-3">
+        <pre><b>Evaluation End :</b><br> {{ evaluation.evaluation_date.date }}<br>  {{evaluation.evaluation_date.time }}</pre>
+    </div>
+    <div class="col-md-3">
+        <pre><b>Cleaning Time :</b><br> {{ evaluation.expected_time.date }}<br>  {{ evaluation.expected_time.time }}</pre>
+    </div>
+</div>
+
+<hr>
+
+<h2 class="mt-2">Evaluation</h2>
+<div class="row">
+    <div class="col-md-2">
+        <pre><b>Cleaning Type :</b><br> {{ evaluation.order.service }}</pre>
+    </div>
+    <div class="col-md-2">
+        <pre><b>Dust Level Price :</b><br> {{ evaluation.dust_level }} -  {{ evaluation.dust_level.price }}</pre>
+    </div>
+    <div class="col-md-2">
+        <pre><b>Team Members :</b><br>  {{ evaluation.team_members }}</pre>
+    </div>
+    <div class="col-md-2">
+        <pre><b>Estimated Price :</b><br> {{ evaluation.estimated_price }}</pre>
+    </div>
+    <div class="col-md-3">
+        <pre><b>Senior Team Leader :</b><br> {{ evaluation.assigned_to.get_full_name }}</pre>
+    </div>
+</div>
+
+<hr>
+
+<h4 class="mt-2">Message for Evaluator</h4>
+<pre>    {{ evaluation.evaluator_order_task.message }}</pre>
+
+<hr>
+
+<h4 class="mt-2">Order Description</h4>
+<pre>    {{ evaluation.order.description }}</pre>
+
+<hr>
+
+<h4 class="mt-2">Evaluation Description</h4>
+<pre>    {{ evaluation.description }}</pre>
+
+<hr>
+
+<form method="POST">
         {% csrf_token %}
-        <h5 class="text-center">{{ evaluation.order.unique_id }}</h5>
-        <br>
-        <div class="form-row">
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label class="small mb-1">Customer Name:</label>
-                    <h5>{{ evaluation.order.customer.first_name.capitalize }} -
-                        {{ evaluation.order.customer.last_name.capitalize }}</h5>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label class="small mb-1">City:</label>
-                    <h5>{{ evaluation.order.address.city.city_name.capitalize }} -
-                        {{ evaluation.order.address.city.state.state_name.capitalize }}</h5>
-                </div>
-            </div>
-        </div>
-        <div class="form-row">
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label class="small mb-1">Contact No:</label>
-                    <h5>{{ evaluation.order.customer.mobile_no }}</h5>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label class="small mb-1">Email Address:</label>
-                    <h5>{{ evaluation.order.customer.email }}</h5>
-                </div>
-            </div>
-        </div>
         <div class="form-row">
             <div class="col-md-4">
                 <div class="form-group">
@@ -87,21 +164,30 @@
                 <label class="small mb-1" for="{{ form.team.id_for_label }}">
                     {{ form.team.label_tag }}</label>
                 <div class="col-sm-12">
-                    <div class="alert alert-danger alert-dismissible fade show row pb-0" role="alert">
-                        <strong>Ooops...!</strong> {{ form.team.errors }}
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
+                    {% if form.team.errors %}
+                        <div class="alert alert-danger alert-dismissible fade show row pb-0" role="alert">
+                            <strong>Ooops...!</strong> {{ form.team.errors }}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    {% endif %}
                 </div>
                 {{ form.team }}
             </div>
             <hr>
             <button class="btn btn-primary btn-block">Submit</button>
     </form>
+
 </div>
 
 
+<!--<div class="col-lg-8 mb-4">-->
+<!--    &lt;!&ndash; Embedded Google Map &ndash;&gt;-->
+<!--    <iframe width="100%" height="400px" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"-->
+<!--            src="http://maps.google.com/maps?hl=en&amp;ie=UTF8&amp;ll=23.022444, 72.509648&amp;spn=56.506174,79.013672&amp;t=m&amp;z=4&amp;output=embed">-->
+<!--    </iframe>-->
+<!--</div>-->
 
 {% endblock %}
 
