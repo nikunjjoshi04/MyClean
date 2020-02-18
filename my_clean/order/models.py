@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from django_fsm import FSMField, transition
 from customer.models import Customer, Address
 from owners.models import User, TeamMembers
 
@@ -26,7 +27,9 @@ class Order(models.Model):
     IN_EVALUATION = 'in_evaluation'
     EVALUATION_DONE = 'evaluation_done'
     IN_STL = 'in_stl'
-    STL_DONE = 'stl_done'
+    IN_CUSTOMER = 'in_customer'
+    CUSTOMER_REJECTED = 'customer_rejected'
+    CUSTOMER_ACCEPTED = 'customer_accepted'
     IN_TL = 'in_cleaning'
     TL_DONE = 'cleaning_done'
     IN_PAYMENT = 'in_payment'
@@ -35,7 +38,9 @@ class Order(models.Model):
         (IN_EVALUATION, 'In Evaluation Process'),
         (EVALUATION_DONE, 'Evaluation Done'),
         (IN_STL, 'In STL Observation'),
-        (STL_DONE, 'STL Process Done'),
+        (IN_CUSTOMER, 'In Customer Acceptance'),
+        (CUSTOMER_REJECTED, 'Customer Rejected'),
+        (CUSTOMER_ACCEPTED, 'Customer Accepted'),
         (IN_TL, 'In Cleaning Process'),
         (TL_DONE, 'Cleaning Process Done'),
         (IN_PAYMENT, 'In Payment Process'),
@@ -44,7 +49,7 @@ class Order(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     service = models.ForeignKey(Services, on_delete=models.CASCADE)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
-    process = models.CharField(max_length=30, choices=Process_Flags)
+    process = FSMField(default=IN_EVALUATION, choices=Process_Flags)
     address = models.ForeignKey(Address, on_delete=models.CASCADE, related_name='address_pk')
     date = models.DateTimeField(default=timezone.now)
     unique_id = models.CharField(max_length=30)
@@ -52,6 +57,38 @@ class Order(models.Model):
 
     def __str__(self):
         return '{} - {}'.format(self.unique_id, self.process)
+
+    @transition(field=process, source=IN_CUSTOMER, target=CUSTOMER_REJECTED)
+    def customer_rejected(self):
+        pass
+
+    @transition(field=process, source=IN_CUSTOMER, target=CUSTOMER_ACCEPTED)
+    def customer_accepted(self):
+        pass
+
+    @transition(field=process, source=IN_EVALUATION, target=IN_STL)
+    def in_stl(self):
+        pass
+
+    @transition(field=process, source=[IN_STL, CUSTOMER_REJECTED], target=IN_CUSTOMER)
+    def in_customer(self):
+        pass
+
+    @transition(field=process, source=CUSTOMER_ACCEPTED, target=IN_TL)
+    def in_cleaning(self):
+        pass
+
+    @transition(field=process, source=IN_TL, target=TL_DONE)
+    def cleaning_done(self):
+        pass
+
+    @transition(field=process, source=TL_DONE, target=IN_PAYMENT)
+    def in_payment(self):
+        pass
+
+    @transition(field=process, source=IN_PAYMENT, target=ORDER_DONE)
+    def order_done(self):
+        pass
 
 
 class OrderTask(models.Model):
@@ -130,7 +167,6 @@ class Visit(models.Model):
 
 
 class Accounts(models.Model):
-
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
     order_task = models.ForeignKey(OrderTask, on_delete=models.CASCADE)
     date = models.DateTimeField(default=timezone.now)

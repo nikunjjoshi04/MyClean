@@ -16,12 +16,23 @@ class CustomerView(TemplateView):
         data = kwargs.pop('id', None)
         value = URL.decryption(self, data=data)
         id = value['pk']
-        context['order'] = OrderTask.objects.get(id=id)
+        context['order'] = Order.objects.get(id=id)
         return context
 
 
 def customer_accept(request, evaluator_id):
     instance = Evaluation.objects.get(id=evaluator_id)
     instance.accepted = Evaluation.CLIENT_ACCEPT
+    instance.order.customer_accepted()
+    instance.order.save()
+    instance.save()
+    return redirect('/order/home')
+
+
+def customer_reject(request, evaluator_id):
+    instance = Evaluation.objects.get(id=evaluator_id)
+    instance.accepted = Evaluation.CLIENT_ACCEPT
+    instance.order.customer_rejected()
+    instance.order.save()
     instance.save()
     return redirect('/order/home')

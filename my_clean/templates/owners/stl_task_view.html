@@ -4,6 +4,7 @@
   <div class="breadcrumb mb-4">
       <li class="breadcrumb-item pt-1 text-center">Tasks List</li>
   </div>
+<h2>New Tasks</h2>
   <table class="table mb-5">
     <thead class="thead-light">
       <tr>
@@ -13,13 +14,14 @@
         <th>Evaluation Time</th>
         <th>Customer Info</th>
         <th>Created By</th>
-        <th>Process</th>
+        <th>Order Process</th>
+        <th>Task Process</th>
         <th>Review</th>
       </tr>
     </thead>
     <tbody>
-     {% for task in tasks %}
-         {% if task.stl_order_task.process != "finish" %}
+    {% for task in tasks %}
+         {% if task.stl_order_task.process == "in_process" and task.order.process == "in_stl" %}
         <tr>
             <td>{{ task.stl_order_task.id }}</td>
             <td>{{ task.order.unique_id }}</td>
@@ -27,13 +29,79 @@
             <td>{{ task.stl_order_task.date.date }}<br>{{ task.stl_order_task.date.time }}</td>
             <td>{{ task.order.customer.first_name }} {{ task.order.customer.last_name }}</td>
             <td>{{ task.stl_order_task.created_by }}</td>
-            <td>{{ task.stl_order_task.process }}</td>
-          <th><a href="{% url 'owners:stl_review' task.pk task.stl_order_task.id task.order.id %}">Review</a></th>
+            <td>{{ task.order.get_process_display }}</td>
+            <td>22{{ task.stl_order_task.get_process_display }}</td>
+          <th><a href="{% url 'owners:stl_review' task.pk task.stl_order_task.id %}">Review</a></th>
         </tr>
         {% endif %}
       {% endfor %}
-
-    {% for task in tasks %}
+    </tbody>
+  </table>
+<h2>Customer Accepted / Rejected</h2>
+<table class="table mb-5">
+    <thead class="thead-light">
+      <tr>
+        <th>Task Id</th>
+        <th>Order Id</th>
+        <th>Order Date</th>
+        <th>Evaluation Time</th>
+        <th>Customer Info</th>
+        <th>Created By</th>
+        <th>Order Process</th>
+        <th>Task Process</th>
+        <th>Review</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for task in tasks %}
+            {% if task.order.process == "customer_accepted" %}
+            <tr>
+                <td>{{ task.stl_order_task.id }}</td>
+                <td>{{ task.order.unique_id }}</td>
+                <td>{{ task.order.date.date }}<br>{{ task.order.date.time }}</td>
+                <td>{{ task.stl_order_task.date.date }}<br>{{ task.stl_order_task.date.time }}</td>
+                <td>{{ task.order.customer.first_name }} {{ task.order.customer.last_name }}</td>
+                <td>{{ task.stl_order_task.created_by }}</td>
+                <td>{{ task.order.get_process_display }}</td>
+                <td>{{ task.stl_order_task.get_process_display }}</td>
+              <td><a href="{% url 'owners:stl_detail_view' task.stl_order_task.id %}">Create Team</a></td>
+            </tr>
+            {% endif %}
+        {% endfor %}
+        {% for task in tasks %}
+            {% if task.order.process == "customer_rejected" %}
+            <tr>
+                <td>{{ task.stl_order_task.id }}</td>
+                <td>{{ task.order.unique_id }}</td>
+                <td>{{ task.order.date.date }}<br>{{ task.order.date.time }}</td>
+                <td>{{ task.stl_order_task.date.date }}<br>{{ task.stl_order_task.date.time }}</td>
+                <td>{{ task.order.customer.first_name }} {{ task.order.customer.last_name }}</td>
+                <td>{{ task.stl_order_task.created_by }}</td>
+                <td>{{ task.order.get_process_display }}</td>
+                <td>{{ task.stl_order_task.get_process_display }}</td>
+              <td><a href="{% url 'owners:stl_detail_view' task.stl_order_task.id %}">Details</a></td>
+            </tr>
+            {% endif %}
+        {% endfor %}
+    </tbody>
+</table>
+<h2>Finish List</h2>
+<table class="table mb-5">
+    <thead class="thead-light">
+      <tr>
+        <th>Task Id</th>
+        <th>Order Id</th>
+        <th>Order Date</th>
+        <th>Evaluation Time</th>
+        <th>Customer Info</th>
+        <th>Created By</th>
+        <th>Order Process</th>
+        <th>Task Process</th>
+        <th>Review</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for task in tasks %}
          {% if task.stl_order_task.process == "finish" %}
         <tr>
             <td>{{ task.stl_order_task.id }}</td>
@@ -42,11 +110,13 @@
             <td>{{ task.stl_order_task.date.date }}<br>{{ task.stl_order_task.date.time }}</td>
             <td>{{ task.order.customer.first_name }} {{ task.order.customer.last_name }}</td>
             <td>{{ task.stl_order_task.created_by }}</td>
-            <td>{{ task.stl_order_task.process }}</td>
+            <td>{{ task.order.get_process_display }}</td>
+            <td>{{ task.stl_order_task.get_process_display }}</td>
           <th><a href="{% url 'owners:stl_detail_view' task.stl_order_task.id %}">Detail</a></th>
         </tr>
         {% endif %}
       {% endfor %}
     </tbody>
-  </table>
+</table>
+
 {% endblock %}

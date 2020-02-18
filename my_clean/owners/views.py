@@ -14,7 +14,7 @@ from datetime import datetime
 from django.contrib.auth import logout, login, authenticate
 from .forms import LoginForm, OrderForm, \
     OrderTaskForm, CustomerForm, AddressForm, EvaluationForm, \
-    STLReviewForm, PaymentForm, PostForm, ImageForm
+    STLReviewForm, PaymentForm, PostForm, ImageForm, TeamForm
 from .models import User, Post, Images
 from my_clean.settings import EMAIL_HOST_USER
 from owners.util import URL
@@ -141,7 +141,7 @@ class EvaluationView(FormView):
             evaluation_media = EvaluationMedia(image=image, is_evaluation=eval_form)
             evaluation_media.save()
         order = Order.objects.get(id=self.kwargs['pk'])
-        order.process = Order.EVALUATION_DONE
+        order.in_stl()
         order.save()
         order_task = OrderTask.objects.get(id=self.kwargs['task_id'])
         order_task.schedule_end = timezone.now()
@@ -187,49 +187,19 @@ class STLReview(UpdateView):
     success_url = '/owners/stl_task_view'
 
     def form_valid(self, form):
-        assigned_to = form.cleaned_data['assigned_to']
-        team_members = form.cleaned_data['team']
         schedule_on = form.cleaned_data['expected_time']
         instance = form.save(commit=False)
         instance.accepted = Evaluation.STL_ACCEPT
-        instance.save()
-        order = Order.objects.get(id=self.kwargs['order_id'])
-        order.process = Order.STL_DONE
-        order.save()
-        order_task = OrderTask.objects.get(id=self.kwargs['task_id'])
-        order_task.process = OrderTask.FINISH
-        order_task.schedule_end = timezone.now()
-        data = URL.encryption(self, pk=order_task.id)
+        instance.order.in_customer()
+        instance.order.save()
+        data = URL.encryption(self, pk=instance.order.id)
         print("B_SEND :-  ", data)
         msg = 'http://127.0.0.1:8000/customer/customer_view/' + str(data)
-        order_task.save()
-        new_order_task = OrderTask.objects.create(
-                order_id=self.kwargs['order_id'],
-                created_by=self.request.user,
-                assigned_to=assigned_to,
-                process=OrderTask.IN_PROCESS,
-                schedule_on=schedule_on
-            )
-        o = Team.objects.latest('date')
-        o_id = 'TEAM' + str(datetime.now().year) + '0' + str(o.id + 1)
-        team = Team.objects.create(
-            team_id=o_id,
-            order_id=self.kwargs['order_id'],
-            task=new_order_task,
-            team_leader=assigned_to,
-        )
-        team.team_member.set(team_members)
         email = 'nikunj.joshi@trootech.com'
-        email1 = order.customer.email
+        email1 = instance.order.customer.email
         send_mail("Customer Test", msg, EMAIL_HOST_USER, [email, email1], fail_silently=False)
+        instance.save()
         return super(STLReview, self).form_valid(form)
-
-    def get_form_kwargs(self):
-        kwargs = super(STLReview, self).get_form_kwargs()
-        kwargs['user'] = self.request.user
-        kwargs['task_id'] = self.kwargs['task_id']
-        kwargs['order_id'] = self.kwargs['order_id']
-        return kwargs
 
     def get_context_data(self, **kwargs):
         context = super(STLReview, self).get_context_data()
@@ -237,14 +207,42 @@ class STLReview(UpdateView):
         return context
 
 
-class STLDetailView(DetailView):
+class STLDetailView(FormView):
     template_name = 'owners/stl_detail_view.html'
     model = OrderTask
-    context_object_name = 'order_task'
+    form_class = TeamForm
+    success_url = '/owners/stl_task_view'
 
-    # def get_context_data(self, **kwargs):
-    #     import pdb;pdb.set_trace()
-    #     pass
+    def form_valid(self, form):
+        team_leader = form.cleaned_data['team_leader']
+        team = form.save(commit=False)
+        o = Team.objects.latest('date')
+        o_id = 'TEAM' + str(datetime.now().year) + '0' + str(o.id + 1)
+        task = OrderTask.objects.get(id=self.request.session['team'])
+        print('team_id', o.id)
+        print(task.order, o_id)
+        team.team_id = o_id
+        team.order = task.order
+        task.process = OrderTask.FINISH
+        task.order.in_cleaning()
+        task.order.save()
+        task.save()
+        tl_task = OrderTask.objects.create(
+            order=task.order,
+            created_by=self.request.user,
+            assigned_to=team_leader,
+            process=OrderTask.IN_PROCESS,
+        )
+        team.task = tl_task
+        team.save()
+        return super(STLDetailView, self).form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super(STLDetailView, self).get_context_data()
+        self.request.session['team'] = self.kwargs['pk']
+        context['order_task'] = self.model.objects.get(id=self.request.session['team'])
+        print(self.kwargs['pk'])
+        return context
 
 
 def stl_calc(request):

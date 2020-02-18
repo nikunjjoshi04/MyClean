@@ -123,6 +123,7 @@
 <hr>
 
 <h4 class="mt-2">Team Members - {{ order_task.order.team_set.first.team_id }}</h4>
+<p>{{ order_task.order.team_set.first.team_member.all }}</p>
 <table class="table mb-5">
     <thead class="thead-light">
     <tr>
@@ -194,7 +195,7 @@
              $.ajax({
                 url:url,
                 data:{
-                    visit_id:visit_id
+                    <visit_id:visi></visit_id:visi>t_id
                 },
                 success:function(data){
                     $("#start_end").html("<a class='btn btn-block btn-primary' href='{% url 'owners:tl_task_view' %}' > Back To Tasks</a>");

@@ -3,7 +3,7 @@
 {% block content %}
 
 <div class="breadcrumb mb-4">
-    <li class="breadcrumb-item pt-1 text-center"><a href="{% url 'owners:evaluator_view' %}">Tasks List</a></li>
+    <li class="breadcrumb-item pt-1 text-center"><a href="{% url 'owners:stl_task_view' %}">Tasks List</a></li>
     <li class="breadcrumb-item pt-1 text-center">Order Order Detail</li>
 </div>
 
@@ -91,15 +91,7 @@
     <div class="col-md-3">
         <pre><b>Team Members :</b><br>  {{ order_task.stl_order_task.first.team_members }}</pre>
     </div>
-    {% if order_task.stl_order_task.first.discount != 0 %}
-        <div class="col-md-3">
-            <pre><b>Estimated Price :</b><br> {{ order_task.stl_order_task.first.estimated_price |add:order_task.stl_order_task.first.discount }}</pre>
-        </div>
-        {% else %}
-        <div class="col-md-3">
-            <pre><b>Estimated Price :</b><br> {{ order_task.stl_order_task.first.estimated_price }}</pre>
-        </div>
-    {% endif %}
+
 </div>
 
 <hr>
@@ -118,6 +110,16 @@
 </div>
 
 <hr>
+{% if order_task.order.process == 'customer_accepted' %}
+<h4 class="mt-2">Create Team</h4>
+<form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class="btn btn-primary btn-block" type="submit">Create Team...</button>
+</form>
+<hr>
+{% endif %}
+
 
 <h4 class="mt-2">Order Description</h4>
 <pre>    {{ order_task.order.description }}</pre>
@@ -126,6 +128,7 @@
 
 <h4 class="mt-2">Evaluation Description</h4>
 <pre>    {{ order_task.stl_order_task.first.description }}</pre>
+
 
 </div>
 

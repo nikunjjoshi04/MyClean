@@ -142,15 +142,19 @@
         <div class="container p-3 my-3 border pl-5">
             <h6>{{ evaluation.order.description }}</h6>
         </div>
-        {% if evaluation.accepted == 'stl_accept' %}
-            <a class="btn btn-primary btn-block my-5" href="{% url 'customer:customer_accept' evaluation.id %}">Accept</a>
-        {% else %}
-            <button class="btn btn-primary btn-block my-5 disabled">Accepted...!</button>
-        {% endif %}
+
     </div>
     {% endfor %}
-
-
+    {% if order.order_pk.first.accepted == 'stl_accept' %}
+        <div class="row">
+            <div class="col-md-6">
+                <a class="btn btn-primary btn-block" href="{% url 'customer:customer_accept' order.order_pk.first.id %}">Accept</a>
+            </div>
+            <div class="col-md-6">
+                <a class="btn btn-primary btn-block" href="{% url 'customer:customer_reject' order.order_pk.first.id %}">Reject</a>
+            </div>
+        </div>
+    {% endif %}
 </div>
 </div>
 

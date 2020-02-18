@@ -115,11 +115,11 @@
 <pre>    {{ evaluation.description }}</pre>
 
 <hr>
-
+{% if evaluation.order.process == 'in_stl' %}
 <form method="POST">
         {% csrf_token %}
         <div class="form-row">
-            <div class="col-md-4">
+            <div class="col-md-6">
                 <div class="form-group">
                     <label class="small mb-1" id="team_members_id" dust_level="{{ evaluation.dust_level }}"
                            for="{{ form.team_members.id_for_label }}">
@@ -127,27 +127,20 @@
                     {{ form.team_members }}
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-6">
                 <div class="form-group">
                     <label class="small mb-1" for="{{ form.discount.id_for_label }}">
                         {{ form.discount.label_tag }}</label>
                     {{ form.discount }}
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="form-group">
-                    <label class="small mb-1" for="{{ form.estimated_price.id_for_label }}">
-                        {{ form.estimated_price.label_tag }}</label>
-                    {{ form.estimated_price}}
-                </div>
-            </div>
         </div>
         <div class="form-row">
             <div class="col-md-6">
                 <div class="form-group">
-                    <label class="small mb-1" for="{{ form.assigned_to.id_for_label }}">
-                        {{ form.assigned_to.label_tag }}</label>
-                    {{ form.assigned_to }}
+                    <label class="small mb-1" for="{{ form.estimated_price.id_for_label }}">
+                        {{ form.estimated_price.label_tag }}</label>
+                    {{ form.estimated_price}}
                 </div>
             </div>
             <div class="col-md-6">
@@ -160,24 +153,25 @@
                 </div>
             </div>
         </div>
-            <div class="form-group">
-                <label class="small mb-1" for="{{ form.team.id_for_label }}">
-                    {{ form.team.label_tag }}</label>
-                <div class="col-sm-12">
-                    {% if form.team.errors %}
-                        <div class="alert alert-danger alert-dismissible fade show row pb-0" role="alert">
-                            <strong>Ooops...!</strong> {{ form.team.errors }}
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                    {% endif %}
-                </div>
-                {{ form.team }}
-            </div>
+<!--            <div class="form-group">-->
+<!--                <label class="small mb-1" for="{{ form.team.id_for_label }}">-->
+<!--                    {{ form.team.label_tag }}</label>-->
+<!--                <div class="col-sm-12">-->
+<!--                    {% if form.team.errors %}-->
+<!--                        <div class="alert alert-danger alert-dismissible fade show row pb-0" role="alert">-->
+<!--                            <strong>Ooops...!</strong> {{ form.team.errors }}-->
+<!--                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">-->
+<!--                                <span aria-hidden="true">&times;</span>-->
+<!--                            </button>-->
+<!--                        </div>-->
+<!--                    {% endif %}-->
+<!--                </div>-->
+<!--                {{ form.team }}-->
+<!--            </div>-->
             <hr>
             <button class="btn btn-primary btn-block">Submit</button>
     </form>
+{% endif %}
 
 </div>
 

@@ -100,7 +100,14 @@ class CustomerForm(forms.ModelForm):
     first_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control py-2'}))
     last_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control py-2'}))
     email = forms.EmailField(widget=forms.EmailInput(attrs={'class': 'form-control py-2'}))
-    mobile_no = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control py-2'}))
+    mobile_no = forms.CharField(
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control py-2',
+                'value': '+91'
+            }
+        )
+    )
 
     class Meta:
         model = Customer
@@ -207,20 +214,32 @@ class EvaluationMediaForm(forms.Form):
     )
 
 
-class STLReviewForm(forms.ModelForm):
-    team = forms.ModelMultipleChoiceField(
+class TeamForm(forms.ModelForm):
+    team_leader = forms.ModelChoiceField(
+        queryset=User.objects.filter(user_type=User.TL),
+        empty_label="SELECT",
+        widget=forms.Select(attrs={'class': 'form-control py-2'})
+    )
+
+    team_member = forms.ModelMultipleChoiceField(
         queryset=TeamMembers.objects.all(),
         widget=forms.SelectMultiple(
-            attrs={'class': 'form-control py-2', 'rows': '3'}
+            attrs={
+                'class': 'form-control py-2'
+            }
         )
     )
-    assigned_to = forms.ModelChoiceField(
-        queryset=User.objects.all(),
-        empty_label="SELECT",
-        widget=forms.Select(
-            attrs={'class': 'form-control py-2'}
-        )
-    )
+
+    class Meta:
+        model = Team
+        fields = ['team_leader', 'team_member']
+
+    # def __init__(self):
+    #     super(TeamForm, self).__init__()
+    #     self.fields['team_leader'].queryset = User.objects.filter(user_type=User.TL)
+
+
+class STLReviewForm(forms.ModelForm):
     team_members = forms.IntegerField(
         widget=forms.TextInput(
             attrs={'class': 'form-control py-2'}
@@ -249,24 +268,17 @@ class STLReviewForm(forms.ModelForm):
         model = Evaluation
         fields = ['team_members', 'expected_time', 'estimated_price', 'discount']
 
-    def clean_team(self):
-        team = self.cleaned_data['team']
-        team_members = self.cleaned_data['team_members']
-        if team.count() < team_members:
-            raise forms.ValidationError("The team member is Less then required parsons")
-        elif team.count() > team_members:
-            raise forms.ValidationError("The team member is More then required parsons")
-        return team
+    # def clean_team(self):
+    #     team = self.cleaned_data['team']
+    #     team_members = self.cleaned_data['team_members']
+    #     if team.count() < team_members:
+    #         raise forms.ValidationError("The team member is Less then required parsons")
+    #     elif team.count() > team_members:
+    #         raise forms.ValidationError("The team member is More then required parsons")
+    #     return team
 
     def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop('user', None)
-        self.task_id = kwargs.pop('task_id', None)
-        self.order_id = kwargs.pop('order_id', None)
         super(STLReviewForm, self).__init__(*args, **kwargs)
-        if self.user.user_type == User.STL:
-            self.fields['assigned_to'].queryset = User.objects.filter(user_type=User.TL)
-        else:
-            self.fields['assigned_to'].queryset = User.objects.all()
 
 
 class PaymentForm(forms.ModelForm):
