@@ -215,12 +215,11 @@ class STLDetailView(FormView):
 
     def form_valid(self, form):
         team_leader = form.cleaned_data['team_leader']
+        team_member = form.cleaned_data['team_member']
         team = form.save(commit=False)
         o = Team.objects.latest('date')
         o_id = 'TEAM' + str(datetime.now().year) + '0' + str(o.id + 1)
         task = OrderTask.objects.get(id=self.request.session['team'])
-        print('team_id', o.id)
-        print(task.order, o_id)
         team.team_id = o_id
         team.order = task.order
         task.process = OrderTask.FINISH
@@ -234,6 +233,8 @@ class STLDetailView(FormView):
             process=OrderTask.IN_PROCESS,
         )
         team.task = tl_task
+        team.save()
+        team.team_member.set(team_member)
         team.save()
         return super(STLDetailView, self).form_valid(form)
 
@@ -275,9 +276,9 @@ class TLDetailView(DetailView):
 def tl_start(request):
     task_id = request.GET['task_id']
     task = OrderTask.objects.get(id=task_id)
-    order = Order.objects.get(id=task.order.id)
-    order.process = Order.IN_TL
-    order.save()
+    # order = Order.objects.get(id=task.order.id)
+    # order.process = Order.IN_TL
+    # order.save()
     visit = Visit.objects.create(
         order=task.order,
         order_task=task,
@@ -286,28 +287,26 @@ def tl_start(request):
         team=task.order.team_set.first()
     )
     return JsonResponse({'visit_id': visit.id})
+    # return JsonResponse({'visit_id': task_id})
 
 
 def tl_end(request):
     visit_id = request.GET['visit_id']
     visit = Visit.objects.get(id=visit_id)
     visit.end = timezone.now()
-    order = Order.objects.get(id=visit.order.id)
-    order.process = Order.TL_DONE
-    order.save()
-    task = OrderTask.objects.get(id=visit.order_task.id)
-    task.process = OrderTask.FINISH
-    task.save()
-    visit.save()
+    visit.order.in_payment()
+    visit.order_task.process = OrderTask.FINISH
     user = User.objects.get(user_type='accountent')
     order_task = OrderTask.objects.create(
-        order=order,
+        order=visit.order,
         created_by=request.user,
         assigned_to=user,
         process=OrderTask.IN_PROCESS
     )
+    visit.order.save()
+    visit.order_task.save()
+    visit.save()
     return JsonResponse({'visit_id': visit.id})
-
 
 class AccountTaskView(ListView):
     template_name = 'owners/account_task_view.html'
@@ -346,40 +345,3 @@ class AccountDetailView(FormView):
 def logout_user(request):
     logout(request)
     return redirect('/order/home')
-
-
-def post(request):
-
-    ImageFormSet = modelformset_factory(Images,form=ImageForm, extra=3)
-
-    #'extra' means the number of photos that you can upload   ^
-
-    if request.method == 'POST':
-
-        postForm = PostForm(request.POST)
-        formset = ImageFormSet(request.POST, request.FILES,
-                               queryset=Images.objects.none())
-
-
-        if postForm.is_valid() and formset.is_valid():
-            post_form = postForm.save(commit=False)
-            post_form.user = request.user
-            post_form.save()
-
-            for form in formset.cleaned_data:
-                #this helps to not crash if the user
-                #do not upload all the photos
-                if form:
-                    image = form['image']
-                    photo = Images(post=post_form, image=image)
-                    photo.save()
-            messages.success(request,
-                             "Yeeew, check it out on the home page!")
-            return HttpResponseRedirect("/")
-        else:
-            print(postForm.errors, formset.errors)
-    else:
-        postForm = PostForm()
-        formset = ImageFormSet(queryset=Images.objects.none())
-    return render(request, 'owners/blog.html',
-                  {'postForm': postForm, 'formset': formset})

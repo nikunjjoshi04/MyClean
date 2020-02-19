@@ -33,7 +33,6 @@ class LoginForm(forms.Form):
 
     def clean(self):
         cleaned_data = super(LoginForm, self).clean()
-        print('clean')
         username = cleaned_data['username']
         password = cleaned_data['password']
 
@@ -232,7 +231,7 @@ class TeamForm(forms.ModelForm):
 
     class Meta:
         model = Team
-        fields = ['team_leader', 'team_member']
+        fields = ['team_leader']
 
     # def __init__(self):
     #     super(TeamForm, self).__init__()
@@ -267,15 +266,6 @@ class STLReviewForm(forms.ModelForm):
     class Meta:
         model = Evaluation
         fields = ['team_members', 'expected_time', 'estimated_price', 'discount']
-
-    # def clean_team(self):
-    #     team = self.cleaned_data['team']
-    #     team_members = self.cleaned_data['team_members']
-    #     if team.count() < team_members:
-    #         raise forms.ValidationError("The team member is Less then required parsons")
-    #     elif team.count() > team_members:
-    #         raise forms.ValidationError("The team member is More then required parsons")
-    #     return team
 
     def __init__(self, *args, **kwargs):
         super(STLReviewForm, self).__init__(*args, **kwargs)
@@ -346,7 +336,7 @@ class PaymentForm(forms.ModelForm):
         instance = super(PaymentForm, self).save(commit=False)
         instance.order = task.order
         instance.order_task = task
-        task.order.process = Order.ORDER_DONE
+        task.order.order_done()
         task.process = OrderTask.FINISH
         task.order.save()
         task.save()

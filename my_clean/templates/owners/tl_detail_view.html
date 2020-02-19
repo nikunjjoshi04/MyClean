@@ -48,16 +48,24 @@
 </div>
 <!-- /.row -->
 {% if order_task.process != "finish" %}
-    <div id="start_end" class="row my-5">
-        <div class="col-md-6">
-            <button id="start" task-id="{{ order_task.id }}" class="btn btn-block btn-primary">Start</button>
+    {% if order_task.visit_set.first == None %}
+    <div class="row">
+        <div class="col-md-3 text-center"></div>
+        <div class="col text-center" id="start_">
+            <button id="start" task-id="{{ order_task.id }}" class="btn btn-block btn-outline-success">Start</button>
         </div>
-        <div class="col-md-6">
-            <button id="end" class="btn btn-block btn-primary" disabled>End</button>
-        </div>
+        <div class="col-md-3 text-center"></div>
     </div>
+    {% else %}
+    <div class="row">
+        <div class="col-md-3 text-center"></div>
+        <div class="col text-center" id="start_end">
+           <button id='end' visit_id="{{ order_task.visit_set.first.id }}" class='btn btn-outline-danger btn-block'>End</button>
+        </div>
+        <div class="col-md-3 text-center"></div>
+    </div>
+    {% endif %}
 {% endif %}
-
 <hr>
 
 <h2 class="mt-2">Images</h2>
@@ -123,7 +131,6 @@
 <hr>
 
 <h4 class="mt-2">Team Members - {{ order_task.order.team_set.first.team_id }}</h4>
-<p>{{ order_task.order.team_set.first.team_member.all }}</p>
 <table class="table mb-5">
     <thead class="thead-light">
     <tr>
@@ -168,11 +175,9 @@
 {% block js %}
 <script>
     $(document).ready(function(){
+
          $('#start').click(function(){
             $(this).attr("class", "btn btn-block  btn-outline-danger");
-            $(this).prop('disabled', true);
-            $('#end').prop('disabled', false);
-
             var task_id = $(this).attr('task-id');
             var url = '{% url 'owners:tl_start' %}';
             $.ajax({
@@ -181,21 +186,20 @@
                     task_id:task_id
                 },
                 success:function(data){
+                    $('#start').prop('hidden', 'true');
+                    $('#end').prop('hidden', false);
                     $('#end').attr('visit_id', data.visit_id);
                 }
             });
          });
 
          $('#end').click(function(){
-            $(this).attr("class", "btn btn-block  btn-outline-danger");
-            $(this).prop('disabled', true);
-
             var visit_id = $(this).attr('visit_id');
             var url = '{% url 'owners:tl_end' %}';
              $.ajax({
                 url:url,
                 data:{
-                    <visit_id:visi></visit_id:visi>t_id
+                    visit_id:visit_id
                 },
                 success:function(data){
                     $("#start_end").html("<a class='btn btn-block btn-primary' href='{% url 'owners:tl_task_view' %}' > Back To Tasks</a>");

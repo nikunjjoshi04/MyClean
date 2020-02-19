@@ -78,11 +78,7 @@ class Order(models.Model):
     def in_cleaning(self):
         pass
 
-    @transition(field=process, source=IN_TL, target=TL_DONE)
-    def cleaning_done(self):
-        pass
-
-    @transition(field=process, source=TL_DONE, target=IN_PAYMENT)
+    @transition(field=process, source=IN_TL, target=IN_PAYMENT)
     def in_payment(self):
         pass
 

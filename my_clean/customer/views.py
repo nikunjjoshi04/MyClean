@@ -33,6 +33,8 @@ def customer_reject(request, evaluator_id):
     instance = Evaluation.objects.get(id=evaluator_id)
     instance.accepted = Evaluation.CLIENT_ACCEPT
     instance.order.customer_rejected()
+    instance.stl_order_task.process = OrderTask.FINISH
+    instance.stl_order_task.save()
     instance.order.save()
     instance.save()
     return redirect('/order/home')
