@@ -2,11 +2,7 @@ from builtins import super
 from django.utils import timezone
 from django.core.mail import send_mail
 from django.http import HttpResponseRedirect, JsonResponse
-
-from django.forms import modelformset_factory, formset_factory
-from django.contrib import messages
-
-
+from django.db.models import Q
 from django.shortcuts import redirect, render
 from django.views.generic.edit import FormView, UpdateView
 from django.views.generic import TemplateView, DetailView, ListView, CreateView
@@ -14,14 +10,15 @@ from datetime import datetime
 from django.contrib.auth import logout, login, authenticate
 from .forms import LoginForm, OrderForm, \
     OrderTaskForm, CustomerForm, AddressForm, EvaluationForm, \
-    STLReviewForm, PaymentForm, PostForm, ImageForm, TeamForm
-from .models import User, Post, Images
-from my_clean.settings import EMAIL_HOST_USER
+    STLReviewForm, PaymentForm, TeamForm
+from .models import User
+from django.conf import settings
 from owners.util import URL
 from order.models import Order, \
     OrderTask, Evaluation, \
     Team, Services, \
     DustLevelPrice, Visit, EvaluationMedia
+from customer.models import Customer, Address
 
 
 # Create your views here.
@@ -197,7 +194,7 @@ class STLReview(UpdateView):
         msg = 'http://127.0.0.1:8000/customer/customer_view/' + str(data)
         email = 'nikunj.joshi@trootech.com'
         email1 = instance.order.customer.email
-        send_mail("Customer Test", msg, EMAIL_HOST_USER, [email, email1], fail_silently=False)
+        send_mail("Customer Test", msg, settings.EMAIL_HOST_USER, [email, email1], fail_silently=False)
         instance.save()
         return super(STLReview, self).form_valid(form)
 
@@ -307,6 +304,32 @@ def tl_end(request):
     visit.order_task.save()
     visit.save()
     return JsonResponse({'visit_id': visit.id})
+
+
+def search(request):
+    order = None
+    client = None
+    q = request.GET['q']
+    q1 = q.upper()
+    if q1.startswith("MCL"):
+        print(True)
+        order = True
+        queryset = Order.objects.filter(
+            Q(unique_id__startswith=q1)
+        )
+        print(queryset)
+    else:
+        print(False)
+        client = True
+        queryset = Customer.objects.filter(
+            Q(first_name__startswith=q) |
+            Q(last_name__startswith=q) |
+            Q(email__startswith=q) |
+            Q(mobile_no__icontains=q)
+        )
+        print('sh', queryset)
+    return JsonResponse({'order': order, 'client': client})
+
 
 class AccountTaskView(ListView):
     template_name = 'owners/account_task_view.html'

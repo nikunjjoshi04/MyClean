@@ -91,7 +91,9 @@
     <div class="col-md-3">
         <pre><b>Team Members :</b><br>  {{ order_task.stl_order_task.first.team_members }}</pre>
     </div>
-
+    <div class="col-md-3">
+        <pre><b>Estimated Price :</b><br>  {{ order_task.stl_order_task.first.estimated_price |add:order_task.stl_order_task.first.discount }}</pre>
+    </div>
 </div>
 
 <hr>
@@ -120,7 +122,27 @@
 <hr>
 {% endif %}
 
-
+{% if order_task.order.team_set.exists %}
+<h4 class="mt-2">Team Members - {{ order_task.order.team_set.first.team_id }}</h4>
+<table class="table mb-5">
+    <thead class="thead-light">
+    <tr>
+        <th>Member Id</th>
+        <th>Full Name</th>
+        <th>Contact No</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for team_member in order_task.order.team_set.first.team_member.all %}
+        <tr>
+          <td>{{ team_member.id }}</td>
+          <td>{{ team_member.first_name }} {{ team_member.last_name }}</td>
+          <td>{{ team_member.Mobile_no }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endif %}
 <h4 class="mt-2">Order Description</h4>
 <pre>    {{ order_task.order.description }}</pre>
 

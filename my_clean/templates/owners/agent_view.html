@@ -2,13 +2,29 @@
 
 {% block content %}
 
-    <div class="breadcrumb my-2 mx-2 d-flex">
-        <div class="breadcrumb-item mt-1"><a href="{% url 'owners:agent_task_view' %}">Tasks List</a></div>
-        <div class="breadcrumb-item mt-1">Book New Order</div>
-        <div class="ml-auto rounded">
-            <input class="border border-white pl-2" type="text" placeholder="Search" aria-label="Search">
+<!--    <div class="breadcrumb my-2 mx-2 d-flex">-->
+<!--        <div class="breadcrumb-item mt-1"><a href="{% url 'owners:agent_task_view' %}">Tasks List</a></div>-->
+<!--        <div class="breadcrumb-item mt-1">Book New Order</div>-->
+<!--        <div class="ml-auto rounded">-->
+<!--            <input class="border border-white pl-2" type="text" placeholder="Search" aria-label="Search">-->
+<!--        </div>-->
+<!--    </div>-->
+
+<nav class="navbar navbar-expand-lg navbar-secondary mb-4">
+
+  <div class="nav-item mr-1"><a href="{% url 'owners:agent_task_view' %}">Tasks List</a></div> /
+
+  <div class="nav-item ml-1">Book New Order</div>
+
+  <div class="ml-auto">
+      <form class="form-inline">
+        <div class="border border-secondary rounded">
+            <input id="search_box" class="form-control border-white" type="text" placeholder="Search" aria-label="Search">
+            <a class="btn btn-white" href="#" id="search" ><i class="fa fa-search" aria-hidden="true"></i></a>
         </div>
-    </div>
+      </form>
+  </div>
+</nav>
 
 <h1 class="my-4 text-center">Book Order</h1>
 <form method="POST">
@@ -20,10 +36,6 @@
             <div class="col-md-6">
                 <div class="form-group">
                     {% if field.errors %}
-<!--                    <div class="ml-5 row text-danger">-->
-<!--                        <strong>Ooops...!</strong>-->
-<!--                        <p>{{ field.errors }}</p>-->
-<!--                    </div>-->
                     <div class="col-sm-12">
                     <div class="alert alert-danger alert-dismissible fade show row pb-0" role="alert">
                       <strong>Ooops...!</strong> {{ field.errors }}
@@ -40,9 +52,18 @@
             </div>
             {% endfor %}
         </div>
-
         <div class="form-group">
             {{ address.city.errors }}
+            {% if field.errors %}
+                <div class="col-sm-12">
+                    <div class="alert alert-danger alert-dismissible fade show row pb-0" role="alert">
+                      <strong>Ooops...!</strong> {{ field.errors }}
+                      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                </div>
+            {% endif %}
             <label class="small mb-1" for="{{ address.city.id_for_label }}">{{ address.city.label_tag }}</label>
             <!--        <input class="form-control py-4" id="inputEmailAddress" type="email" placeholder="Enter email address" />-->
             {{ address.city }}
@@ -66,6 +87,7 @@
             </div>
         </div>
     </div>
+    <h5 class="my-4 text-center">Create Order</h5>
     <div class="container p-3 my-3 border">
         <div class="form-group">
             {{ order.service.errors }}
@@ -79,6 +101,7 @@
             {{ order.description }}
         </div>
     </div>
+    <h5 class="my-4 text-center">Create Evaluation Task</h5>
     {{ order_task.media }}
     <div class="container p-3 my-3 border">
         <div class="form-row">
@@ -119,6 +142,24 @@
         format: 'YYYY-MM-DD HH:mm',
         minDate: moment()
     });
+    });
+</script>
+<script>
+    $(document).ready(function(){
+        console.info('Search');
+        $('#search').click(function(){
+            var search = $('#search_box').val()
+            $.ajax({
+                url: '{% url 'owners:search' %}',
+                data:{
+                    'q':search
+                },
+                success:function(data){
+                    console.info('order:- ', data.order);
+                    console.info('client:- ', data.client);
+                }
+            });
+        });
     });
 </script>
 {% endblock %}

@@ -84,17 +84,20 @@
 
 <h2 class="mt-2">Evaluation</h2>
 <div class="row text-center">
-    <div class="col-md-3">
+    <div class="col-md-2">
         <pre><b>Agetnt :</b><br> {{ order_task.order.order_pk.first.evaluator_order_task.created_by.get_full_name }}</pre>
     </div>
-    <div class="col-md-3">
+    <div class="col-md-2">
         <pre><b>Evaluator :</b><br> {{ order_task.order.order_pk.first.evaluator_order_task.assigned_to.get_full_name }}</pre>
     </div>
-    <div class="col-md-3">
+    <div class="col-md-4">
         <pre><b>Senior Team Leader :</b><br>  {{ order_task.created_by.get_full_name }}</pre>
     </div>
-    <div class="col-md-3">
-        <pre><b>Team Leader :</b><br>  {{ order_task.assigned_to.get_full_name }}</pre>
+    <div class="col-md-2">
+        <pre><b>Team Leader :</b><br>  {{ order_task.order.order_pk.first.stl_order_task.assigned_to.get_full_name }}</pre>
+    </div>
+    <div class="col-md-2">
+        <pre><b>Accountant :</b><br>  {{ order_task.assigned_to.get_full_name }}</pre>
     </div>
 </div>
 

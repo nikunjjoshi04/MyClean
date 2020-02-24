@@ -52,19 +52,26 @@
     <div class="row">
         <div class="col-md-3 text-center"></div>
         <div class="col text-center" id="start_">
-            <button id="start" task-id="{{ order_task.id }}" class="btn btn-block btn-outline-success">Start</button>
+            <button id="start" href="#" task-id="{{ order_task.id }}" class="btn btn-block btn-outline-success">Start</button>
         </div>
         <div class="col-md-3 text-center"></div>
     </div>
     {% else %}
     <div class="row">
         <div class="col-md-3 text-center"></div>
-        <div class="col text-center" id="start_end">
+        <div class="col text-center" id="sta_end">
            <button id='end' visit_id="{{ order_task.visit_set.first.id }}" class='btn btn-outline-danger btn-block'>End</button>
         </div>
         <div class="col-md-3 text-center"></div>
     </div>
     {% endif %}
+    <div class="row">
+        <div class="col-md-3 text-center"></div>
+        <div class="col text-center" id="start_end">
+           <button hidden id='end' visit_id="{{ order_task.visit_set.first.id }}" class='btn btn-outline-danger btn-block'>End</button>
+        </div>
+        <div class="col-md-3 text-center"></div>
+    </div>
 {% endif %}
 <hr>
 
@@ -202,6 +209,7 @@
                     visit_id:visit_id
                 },
                 success:function(data){
+                    $('#end').prop('hidden', 'true');
                     $("#start_end").html("<a class='btn btn-block btn-primary' href='{% url 'owners:tl_task_view' %}' > Back To Tasks</a>");
                 }
             });

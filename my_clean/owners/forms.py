@@ -1,16 +1,15 @@
 from dataclasses import fields
-from datetime import datetime
+
 from django import forms
-from .models import User, TeamMembers, Post, Images
-from django.utils import timezone
-from tempus_dominus.widgets import DateTimePicker
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate
+
 from customer.models import Customer, Address, \
-    City, State
+    City
 from order.models import Order, \
     OrderTask, Evaluation, \
     Team, Services, DustLevelPrice, \
     Accounts
+from .models import User, TeamMembers, Post, Images
 
 
 class LoginForm(forms.Form):
@@ -96,38 +95,29 @@ class OrderTaskForm(forms.ModelForm):
 
 
 class CustomerForm(forms.ModelForm):
-    first_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control py-2'}))
-    last_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control py-2'}))
-    email = forms.EmailField(widget=forms.EmailInput(attrs={'class': 'form-control py-2'}))
-    mobile_no = forms.CharField(
-        widget=forms.TextInput(
-            attrs={
-                'class': 'form-control py-2',
-                'value': '+91'
-            }
-        )
-    )
-
     class Meta:
         model = Customer
-        fields = '__all__'
+        fields = ['first_name', 'last_name', 'email', 'mobile_no']
+
+    def __init__(self, *args, **kwargs):
+        super(CustomerForm, self).__init__(*args, **kwargs)
+        for filed in self.fields:
+            self.fields[filed].widget.attrs.update({"class": 'form-control py-2'})
+        self.fields['mobile_no'].widget.attrs.update({"value": '+91'})
 
 
 class AddressForm(forms.ModelForm):
-    city = forms.ModelChoiceField(
-        queryset=City.objects.all(),
-        widget=forms.Select(attrs={'class': 'form-control py-2'})
-    )
-    street = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control py-2'}))
-    building = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control py-2'}))
-
     class Meta:
         model = Address
         fields = ['city', 'street', 'building']
 
+    def __init__(self, *args, **kwargs):
+        super(AddressForm, self).__init__(*args, **kwargs)
+        for filed in self.fields:
+            self.fields[filed].widget.attrs.update({"class": 'form-control py-2'})
+
 
 class EvaluationForm(forms.ModelForm):
-
     images = forms.ImageField(required=False)
 
     description = forms.CharField(
@@ -168,7 +158,13 @@ class EvaluationForm(forms.ModelForm):
             self.fields['assigned_to'].queryset = User.objects.filter(user_type=User.STL)
         else:
             self.fields['assigned_to'].queryset = User.objects.all()
-        self.fields['images'].widget.attrs.update({"multiple": ''})
+        self.fields['images'].widget.attrs.update(
+            {
+                'class': 'form-control py-2',
+                "multiple": '',
+                'accept': 'image/*'
+            }
+        )
 
     class Meta:
         model = Evaluation
@@ -350,7 +346,7 @@ class PostForm(forms.ModelForm):
 
     class Meta:
         model = Post
-        fields = ('title', 'body', )
+        fields = ('title', 'body',)
 
 
 class ImageForm(forms.ModelForm):
@@ -358,4 +354,4 @@ class ImageForm(forms.ModelForm):
 
     class Meta:
         model = Images
-        fields = ('image', )
+        fields = ('image',)

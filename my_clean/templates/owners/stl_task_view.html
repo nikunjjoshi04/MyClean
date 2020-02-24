@@ -117,7 +117,7 @@
     </thead>
     <tbody>
         {% for task in tasks %}
-         {% if task.stl_order_task.process == "finish" and task.order.process == "in_cleaning" %}
+         {% if task.stl_order_task.process == "finish" and task.order.process != "customer_rejected" %}
         <tr>
             <td>{{ task.stl_order_task.id }}</td>
             <td>{{ task.order.unique_id }}</td>
