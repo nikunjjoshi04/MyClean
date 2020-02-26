@@ -2,14 +2,6 @@
 
 {% block content %}
 
-<!--    <div class="breadcrumb my-2 mx-2 d-flex">-->
-<!--        <div class="breadcrumb-item mt-1"><a href="{% url 'owners:agent_task_view' %}">Tasks List</a></div>-->
-<!--        <div class="breadcrumb-item mt-1">Book New Order</div>-->
-<!--        <div class="ml-auto rounded">-->
-<!--            <input class="border border-white pl-2" type="text" placeholder="Search" aria-label="Search">-->
-<!--        </div>-->
-<!--    </div>-->
-
 <nav class="navbar navbar-expand-lg navbar-secondary mb-4">
 
   <div class="nav-item mr-1"><a href="{% url 'owners:agent_task_view' %}">Tasks List</a></div> /
@@ -26,10 +18,13 @@
   </div>
 </nav>
 
+<div id="record" class="container p-3 my-3 border">
+
+</div>
+
 <h1 class="my-4 text-center">Book Order</h1>
 <form method="POST">
     {% csrf_token %}
-
     <div class="container p-3 my-3 border">
         <div class="form-row ">
             {% for field in form %}
@@ -146,7 +141,6 @@
 </script>
 <script>
     $(document).ready(function(){
-        console.info('Search');
         $('#search').click(function(){
             var search = $('#search_box').val()
             $.ajax({
@@ -155,8 +149,9 @@
                     'q':search
                 },
                 success:function(data){
-                    console.info('order:- ', data.order);
-                    console.info('client:- ', data.client);
+                    console.info('order:- ', data.message);
+                    console.info('order_count:- ', data.url);
+                    window.location.href = data.url;
                 }
             });
         });

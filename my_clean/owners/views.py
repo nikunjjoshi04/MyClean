@@ -1,24 +1,25 @@
 from builtins import super
-from django.utils import timezone
-from django.core.mail import send_mail
-from django.http import HttpResponseRedirect, JsonResponse
-from django.db.models import Q
-from django.shortcuts import redirect, render
-from django.views.generic.edit import FormView, UpdateView
-from django.views.generic import TemplateView, DetailView, ListView, CreateView
 from datetime import datetime
+
+from django.conf import settings
 from django.contrib.auth import logout, login, authenticate
+from django.core.mail import send_mail
+from django.db.models import Q
+from django.http import HttpResponseRedirect, JsonResponse
+from django.shortcuts import redirect, reverse
+from django.utils import timezone
+from django.views.generic import TemplateView, DetailView, ListView
+from django.views.generic.edit import FormView, UpdateView
+
+from customer.models import Customer
+from order.models import Order, \
+    OrderTask, Evaluation, \
+    Team, DustLevelPrice, Visit, EvaluationMedia
+from owners.util import URL
 from .forms import LoginForm, OrderForm, \
     OrderTaskForm, CustomerForm, AddressForm, EvaluationForm, \
     STLReviewForm, PaymentForm, TeamForm
 from .models import User
-from django.conf import settings
-from owners.util import URL
-from order.models import Order, \
-    OrderTask, Evaluation, \
-    Team, Services, \
-    DustLevelPrice, Visit, EvaluationMedia
-from customer.models import Customer, Address
 
 
 # Create your views here.
@@ -306,29 +307,60 @@ def tl_end(request):
     return JsonResponse({'visit_id': visit.id})
 
 
-def search(request):
-    order = None
-    client = None
-    q = request.GET['q']
-    q1 = q.upper()
-    if q1.startswith("MCL"):
-        print(True)
-        order = True
-        queryset = Order.objects.filter(
-            Q(unique_id__startswith=q1)
-        )
-        print(queryset)
-    else:
-        print(False)
-        client = True
-        queryset = Customer.objects.filter(
-            Q(first_name__startswith=q) |
-            Q(last_name__startswith=q) |
-            Q(email__startswith=q) |
-            Q(mobile_no__icontains=q)
-        )
-        print('sh', queryset)
-    return JsonResponse({'order': order, 'client': client})
+class SearchView(TemplateView):
+    template_name = 'owners/list_order.html'
+
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        json_res = dict()
+        q = request.GET.get('q', None)
+        if q is None:
+            q = kwargs.get('q', None)
+        if q and q.startswith("MCL") or q.startswith('mcl'):
+            queryset = Order.objects.filter(Q(unique_id__icontains=q))
+            if queryset.count() > 1:
+                self.template_name = 'owners/list_order.html'
+                context.update({'order_qs': queryset})
+                url = reverse('owners:search', args=[q])
+                json_res.update({'message': 'success', 'url': url})
+            else:
+                url = reverse('owners:order_detail_view', args=[queryset.first().id])
+                json_res.update({'message': 'success', 'url': url})
+        else:
+            queryset = Customer.objects.filter(
+                Q(first_name__icontains=q) |
+                Q(last_name__icontains=q) |
+                Q(email__icontains=q) |
+                Q(mobile_no__icontains=q)
+            )
+            if queryset.count() > 1:
+                self.template_name = 'owners/list_customer.html'
+                context.update({'customer_qs': queryset})
+                url = reverse('owners:search', args=[q])
+                json_res.update({'message': 'success', 'url': url})
+            elif queryset.count() == 1:
+                url = reverse('owners:customer_detail_view', args=[queryset.first().id])
+                json_res.update({'message': 'success', 'url': url})
+
+        if request.is_ajax():
+            return JsonResponse(data=json_res, status=200)
+        return self.render_to_response(context)
+
+    def get_context_data(self, **kwargs):
+        context = super(SearchView, self).get_context_data()
+        return context
+
+
+class CustomerDetailView(DetailView):
+    template_name = 'owners/customer_detail_view.html'
+    model = Customer
+    context_object_name = 'customer'
+
+
+class OrderDetailView(DetailView):
+    template_name = 'owners/order_detail_view.html'
+    model = Order
+    context_object_name = 'order'
 
 
 class AccountTaskView(ListView):

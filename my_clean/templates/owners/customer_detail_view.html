@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="breadcrumb mb-4">
+    <li class="breadcrumb-item pt-1 text-center"><a href="{% url 'owners:agent_task_view' %}">Tasks List</a></li>
+    <li class="breadcrumb-item pt-1 text-center">Customer Detail</li>
+</div>
+
+<!-- Intro Content -->
+<div class="row">
+    <div class="col-lg-6">
+        <iframe width="100%" height="350px" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"
+            src="http://maps.google.com/maps?hl=en&amp;ie=UTF8&amp;ll=23.022444, 72.509648&amp;spn=56.506174,79.013672&amp;t=m&amp;z=4&amp;output=embed">
+        </iframe>
+    </div>
+    <div class="col-lg-6">
+        <h4 class="mt-3">
+            {{ customer.first_name.capitalize }}
+            {{ customer.last_name.capitalize }}
+        </h4>
+        <p class=" mt-3 row">
+            <i class="fa fa-mobile col-md-6" aria-hidden="true"> : {{ customer.mobile_no }}</i>
+            <i class="fa fa-envelope-o col-md-6" aria-hidden="true"> : {{ customer.email }}</i>
+        </p>
+    </div>
+</div>
+
+<hr>
+
+<h2>Customer Addresses</h2>
+<table class="table mb-5">
+    <thead class="thead-light">
+    <tr>
+        <th>Addresses Id</th>
+        <th>City</th>
+        <th>State</th>
+        <th>Street</th>
+        <th>Building</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for address in customer.address_set.all %}
+    <tr>
+        <td>{{ address.id }}</td>
+        <td>{{ address.city.city_name.capitalize }}</td>
+        <td>{{ address.city.state.state_name.capitalize }}</td>
+        <td>{{ address.street }}</td>
+        <td>{{ address.building }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<hr>
+
+<h2>Customer Orders</h2>
+<table class="table mb-5">
+    <thead class="thead-light">
+    <tr>
+        <th>Order Id</th>
+        <th>City</th>
+        <th>State</th>
+        <th>Street</th>
+        <th>Building</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for order in customer.order_set.all %}
+    <tr>
+        <td>{{ order.id }}</td>
+        <td>
+            {{ order.address.city.city_name.capitalize }}
+            <br>
+            ({{ order.address.city.state.state_name.capitalize }})
+        </td>
+        <td>
+            {{ order.address.street }}
+            <br>
+            {{ order.address.building }}
+        </td>
+        <td>{{ order.process }}</td>
+        <td><a href="#">Details</a></td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<!-- /.row -->
+{% endblock %}

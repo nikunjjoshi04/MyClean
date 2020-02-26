@@ -7,7 +7,7 @@ from .views import \
     AgentDetailView, EvaluatorDetailView, \
     STLDetailView, TLDetailView, tl_start, \
     tl_end, AccountTaskView, AccountDetailView, \
-    search
+    SearchView, CustomerDetailView, OrderDetailView
 
 app_name = 'owners'
 urlpatterns = [
@@ -29,6 +29,9 @@ urlpatterns = [
     path('tl_end/', tl_end, name='tl_end'),
     path('account_task_view/', AccountTaskView.as_view(), name='account_task_view'),
     path('account_detail_view/<int:pk>/', AccountDetailView.as_view(), name='account_detail_view'),
-    path('search/', search, name='search'),
+    path('search/', SearchView.as_view(), name='search'),
+    path('search/<str:q>', SearchView.as_view(), name='search'),
+    path('customer_detail_view/<int:pk>/', CustomerDetailView.as_view(), name='customer_detail_view'),
+    path('order_detail_view/<int:pk>/', OrderDetailView.as_view(), name='order_detail_view'),
 ]
 
