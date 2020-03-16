@@ -142,7 +142,7 @@ AUTH_USER_MODEL = 'owners.User'
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'niknoke04@gmail.com'
-EMAIL_HOST_PASSWORD = '9586282858'
+EMAIL_HOST_PASSWORD = 
 EMAIL_PORT = 587
 
 MEDIA_URL = '/media/'
